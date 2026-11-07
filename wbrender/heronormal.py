@@ -20,7 +20,8 @@ with the lights' directions free (any elevation and azimuth, in the camera's fra
 the game's portraits of the units built and posed as the game's (heroshade.references(): the duck,
 the buggy, the dirtbuggy ...), registered onto them to the pixel.
 
-    python -m wbrender.heronormal fit [UNIT ...]
+    python -m wbrender.heronormal rig UNIT [UNIT ...]        # a game portrait's own rig: lights, shadows, reflections
+    python -m wbrender.heronormal glass                       # the glass, on the buggy's and dirtbuggy's windscreens
     python -m wbrender.heronormal show UNIT [UNIT ...]       # beside the game's: out/heronormal.png
 """
 import argparse
@@ -132,7 +133,46 @@ def settings(unit=None, rig_from=None):
                         ratio = (sum(v) + 1) / (sum(w_) * (P['world_scale'] or 1.0) + 1)
                         if not 0.5 <= ratio <= 2.0:
                             continue
+                        # (nor one of another hue: the buggy's headlight yellow is half grey)
+                        hv = np.array(v, np.float32) / max(1.0, float(sum(v)))
+                        hw = np.array(w_, np.float32) / max(1.0, float(sum(w_)))
+                        if np.abs(hv - hw).max() > 0.1:
+                            continue
                     P['colours'][c] = v
+                # (a colour the lender never saw: carried over by ratio -- each other portrait that fitted both
+                # it and a colour the lender has gives it as so many times that one, channel by channel, then
+                # times the lender's; the median of those. Free of each rig's own scale: the game's yellows
+                # are lit far brighter than its reds, and clip to lemon)
+                rigs = (json.load(open(PAL, encoding='utf-8')).get('units') or {}).values()
+                for c in set(c for R_ in rigs for c in R_.get('colours', {})):
+                    if c in P['colours'] or c in DISTRUST:
+                        continue
+                    est = []
+                    for R_ in rigs:
+                        rc_ = R_.get('colours', {})
+                        if c not in rc_:
+                            continue
+                        for k_, kv in P['colours'].items():
+                            # (through a colour fitted to clip -- above full, as the duck's yellow -- the ratio
+                            # says how far past white it was pushed, not how bright the other is: not used)
+                            if max(kv) > 280 or (k_ in rc_ and max(rc_[k_]) > 280):
+                                continue
+                            if k_ in rc_ and k_ not in NEUTRAL and k_ != c:
+                                ratio = np.array(rc_[c], np.float32) / np.maximum(np.array(rc_[k_], np.float32).max(), 1.0)
+                                est.append(ratio * max(kv))
+                    if est:
+                        v_ = np.median(np.array(est), 0)
+                        # (kept only if it is still the colour -- the world palette's hue -- and no brighter than
+                        # the lender's own brightest unclipped colour by much; else left to the world palette at
+                        # the lender's scale: a ratio chained through rigs lit very unalike runs wild)
+                        w_ = Wp.get(c)
+                        lim = max([max(v2) for v2 in lender.get('colours', {}).values() if max(v2) <= 280] or [255]) * 1.3
+                        ok = v_.max() <= lim
+                        if w_ is not None:
+                            w_ = np.array(w_, np.float32)
+                            ok = ok and np.abs(v_ / max(1.0, v_.sum()) - w_ / max(1.0, w_.sum())).max() <= 0.1
+                        if ok:
+                            P['colours'][c] = [int(round(x)) for x in v_]
                 P['trusted'] = list(P['colours'])
     return P
 
@@ -328,9 +368,17 @@ def world_scale(pal):
     but black, the greys and white."""
     from .shade import palette as world
     W = world()['colours']
-    r = [sum(pal['colours'][c]) / max(1, sum(W[c])) for c in TRUSTED if c in pal['colours'] and c in W]
+
+    def same_hue(c):
+        # (a colour fitted on a few pixels of another hue -- the buggy's headlight yellow -- says nothing)
+        v, w_ = np.array(pal['colours'][c], np.float32), np.array(W[c], np.float32)
+        return np.abs(v / max(1.0, v.sum()) - w_ / max(1.0, w_.sum())).max() <= 0.1
+    # (the saturated colours first -- a yellow is lit and clipped as a red is, not as the black rubber)
+    r = [sum(pal['colours'][c]) / max(1, sum(W[c])) for c in TRUSTED if c in pal['colours'] and c in W and same_hue(c) and c not in NEUTRAL]
     if not r:
-        r = [sum(v) / max(1, sum(W[c])) for c, v in pal['colours'].items() if c in W and c not in DISTRUST]
+        r = [sum(pal['colours'][c]) / max(1, sum(W[c])) for c in TRUSTED if c in pal['colours'] and c in W and same_hue(c)]
+    if not r:
+        r = [sum(v) / max(1, sum(W[c])) for c, v in pal['colours'].items() if c in W and c not in DISTRUST and same_hue(c)]
     return float(np.median(r)) if r else None
 
 
@@ -355,6 +403,9 @@ def reflected(s, pal, L, R):
     w = s.get('robj', np.zeros(z.shape, np.float32))[..., None] if rc is not None else 0
     out = rgb * w + env * (1 - w)
     r = R['r0'] + R['fresnel'] * np.power(1 - np.clip(s['N'] @ V, 0, 1), 5)
+    # (the rubber is matte: no mirror in it -- its own highlights only; mirrored, a tyre's underside
+    # catches the bright floor in specks)
+    r = np.where(np.isin(s['codes'], RUBBER), 0.0, r)
     return out, np.clip(r, 0, 1)
 
 
@@ -408,10 +459,30 @@ def glass_rgb(s, back, g, L, G):
         h = (l + V) / np.linalg.norm(l + V)
         spec = spec + li['w'] * np.power(np.maximum(0, n @ h), G['power'])
     fres = np.power(1 - np.clip(n @ V, 0, 1), 3)
-    return G['transmit'] * through + (1 - G['transmit']) * G['grey'] + (G['shine'] * spec + G['fresnel'] * fres)[:, None]
+    out = G['transmit'] * through + (1 - G['transmit']) * G['grey'] + (G['shine'] * spec + G['fresnel'] * fres)[:, None]
+    if G.get('mirror') and s.get('rdir') is not None:
+        # (and the glass a mirror: the world it reflects -- its own bright sky and floor -- or the part,
+        # more so toward its edges: the white bands across the game's windscreens)
+        z = s['rdir'][g][:, 2]
+        t = np.clip(0.5 + z / 0.3, 0, 1)[:, None]
+        env = G['gground'] + (G['gsky'] - G['gground']) * t
+        w = s['robj'][g][:, None] if s.get('robj') is not None else 0.0
+        partv = np.zeros_like(out)
+        rc = s.get('rcodes')
+        if rc is not None:
+            from .shade import palette as world
+            Wp = world()['colours']
+            for code in np.unique(rc[g]):
+                if code:
+                    m = rc[g] == code
+                    partv[m] = np.array(Wp.get(code) or s['legend'].get(code) or [128, 128, 128], np.float32) / 255.0
+        refl = partv * w + env * (1 - w)
+        r = np.clip(G['mirror'] + G.get('mirror_edge', 0.0) * np.power(1 - np.clip(n @ V, 0, 1), 5), 0, 1)[:, None]
+        out = out * (1 - r) + refl * r
+    return out
 
 
-def glass_fit(units=('buggy', 'dirtbuggy'), tries=3000, seed=5):
+def glass_fit(units=('buggy', 'dirtbuggy'), tries=4000, seed=5):
     """The glass, fitted on the game's windscreens: each part of the glass by what is behind it (the
     median colour over each), and the spread of the glass's brightness (its streaks)."""
     data = []
@@ -450,7 +521,8 @@ def glass_fit(units=('buggy', 'dirtbuggy'), tries=3000, seed=5):
     best = None
     for t in range(tries):
         G = {'transmit': rng.uniform(0.1, 0.9), 'desaturate': rng.uniform(0, 1), 'grey': rng.uniform(0.1, 0.9),
-             'shine': rng.uniform(0, 2), 'power': float(rng.choice([10, 30, 80, 200])), 'fresnel': rng.uniform(0, 1)}
+             'shine': rng.uniform(0, 2), 'power': float(rng.choice([10, 30, 80, 200])), 'fresnel': rng.uniform(0, 1),
+             'mirror': rng.uniform(0, 0.8), 'mirror_edge': rng.uniform(0, 1), 'gsky': rng.uniform(0, 1.3), 'gground': rng.uniform(0, 1.3)}
         e = err(G)
         if best is None or e < best[0]:
             best = (e, G)
@@ -459,6 +531,7 @@ def glass_fit(units=('buggy', 'dirtbuggy'), tries=3000, seed=5):
         H = {k: (float(np.clip(v + rng.normal(0, 0.04), 0, 2)) if k != 'power' else v) for k, v in G.items()}
         H['transmit'] = min(H['transmit'], 1.0)
         H['desaturate'] = min(H['desaturate'], 1.0)
+        H['mirror'] = min(H['mirror'], 1.0)
         eh = err(H)
         if eh < e:
             e, G = eh, H
@@ -787,9 +860,10 @@ def render_portrait(unit, out_path, consistent=False, box=None):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument('what', choices=['fit', 'faces', 'shadows', 'glass', 'reflect', 'reflect-rigs', 'finish', 'show'])
+    ap.add_argument('what', choices=['rig', 'fit', 'faces', 'shadows', 'glass', 'reflect', 'reflect-rigs', 'finish', 'show'])
     ap.add_argument('units', nargs='*')
     ap.add_argument('--consistent', action='store_true')
+    ap.add_argument('--grey', action='store_true', help='reflect-rigs: the world reflected grey only')
     ap.add_argument('--front-key', action='store_true', help='shadows: the key light in front of the model (azimuth within 110)')
     ap.add_argument('--group', choices=sorted(GROUPS), help='faces: fit the rig of this kind of unit on its references')
     a = ap.parse_args()
@@ -806,9 +880,16 @@ def main():
         kf = (lambda e, az: abs(az) <= 110) if a.front_key else None
         shadow_fit(a.units or GROUPS[a.group or 'vehicle'], group=a.group, key_from=kf)
         return
+    if a.what == 'rig':
+        # (each portrait's own rig: its lights and their shadows from the period's usual start, then its
+        # reflections with them, the world reflected grey)
+        for u in a.units or references():
+            shadow_fit([u], start=[(0, -125), (0, 100)], tries=600, rounds=2, unit_rig=True)
+            reflect_rig(u, grey=a.grey)
+        return
     if a.what == 'reflect-rigs':
         for u in (a.units or sorted(json.load(open(PAL, encoding='utf-8')).get('units', {}))):
-            reflect_rig(u)
+            reflect_rig(u, grey=a.grey)
         return
     if a.what == 'reflect':
         reflect_fit(a.units or ['fish', 'duck', 'frog', 'snail', 'buggy', 'dirtbuggy', 'dozer', 'dumptruck'])
@@ -1271,7 +1352,7 @@ def reflect_fit(units, tries=2500, steps=2500, seed=7):
     return R
 
 
-def reflect_rig(unit, steps=3000, seed=11):
+def reflect_rig(unit, steps=3000, seed=11, grey=False):
     """A portrait's rig refined with the plastic's reflections in it: the lights where the rig has them,
     their strengths, the sky, the gamma and the exposure walked again together with how much the plastic
     reflects (face on, and toward its edges), how bright the parts it reflects are and the world about it.
@@ -1319,6 +1400,11 @@ def reflect_rig(unit, steps=3000, seed=11):
         R = {'r0': float(np.clip(x[7], 0, 0.8)), 'fresnel': float(np.clip(x[8], 0, 1)), 'part': float(np.clip(x[9], 0, 2)),
              'sky': [float(np.clip(v, 0, 1.6)) for v in x[10:13]], 'ground': [float(np.clip(v, 0, 1.6)) for v in x[13:16]],
              'horizon': float(np.clip(x[16], 0.02, 1.5))}
+        if grey:
+            # (a studio's grey sky and floor only: a portrait that would otherwise fit a coloured world --
+            # the tugboat's pink sky -- to make up for its build's differences)
+            R['sky'] = [float(np.mean(R['sky']))] * 3
+            R['ground'] = [float(np.mean(R['ground']))] * 3
         return L, R, float(np.exp(x[17]))
 
     def evaluate(x, want=False):

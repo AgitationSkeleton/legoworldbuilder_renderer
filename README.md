@@ -7,8 +7,8 @@ game's own sprites were, brought down to the game's size with its hard cut-out e
 unit that swims, stood partly in the water as the game draws it.
 
 It also renders the **info panel portraits**: the larger pictures of a unit the game shows when
-it is selected, lit as the game's were lit (low lights, hard shadows, overexposed colour, see-through
-glass, JPEG-kept), and the plans bar's icons.
+it is selected, lit as the game's were lit (low lights, hard shadows, reflective plastic,
+overexposed colour, mirroring glass, kept as JPEG), and the plans bar's icons.
 
 The renderer was made against **JappaWakka's recreations** of the game's units. The cameras, the
 lighting and the colours were all measured on the game's own sprites and portraits (see
@@ -53,7 +53,7 @@ drawn by hand but rendered from 3D models and then cut out, which is what lets t
 |---|---|
 | An **oblique** view, as the map's tiles are drawn (a tile 50 px on in its row; each row 50 px down and 25 px left): what is further north is drawn further right, and upright edges stay upright. No real camera does that. | The model is sheared (`x' = x + skew·y`) after it is turned, and shot with an orthographic camera. Blender renders a sheared parent exactly, normals and all. |
 | One model, turned a right angle per direction: **right** (east), **left** (west), **up** (north, away and to the right) and **down** (south, toward and to the left). | The turn for each direction, the camera's elevation, the skew and the size are fitted to the game's own sprites, unit by unit (`wbrender.fit`). The four turns are kept to one pattern so a unit alike from both sides isn't turned the wrong way. |
-| **No studs** on the units' bricks: the duck's top and the buggy's spoiler are flat. The pickup brick piles do show studs. | Studs are left out (empty stud parts are found before the library's), unless a model is marked `"studs": "full"`. |
+| **No studs** on the units' bricks: the duck's top and the buggy's spoiler are flat, and so are the buildings' roofs and bases. The pickup brick piles do show studs. The portraits show studs everywhere. | Studs are left out of the map sprites (empty stud parts are found before the library's), unless a model is marked `"studs": "full"` (the piles). Portraits are rendered with studs. |
 | Strong, saturated colours, richer than LDraw's; no shadow on the ground. | Composited from light passes (each colour's id, white plastic under each light, the sky), with a palette and lights learned from the game's own sprites' pixels (`wbrender/shade.py`, `config/palette.json`). |
 | A **hard edge** (no partial transparency), whose edge pixels still carry a little of the colour the render was smoothed against: magenta, white or grass green on land, **cyan** around a unit in water. | Rendered large, shrunk by averaging, its edge smoothed against a chosen backdrop colour, then cut out at a coverage threshold (`wbrender/post.py`). |
 | A unit **in water** (`vehicle.duck.water.right` ...): the part below the waterline tinted toward the water's teal, deeper toward blue, with a cyan rim. | A waterline (a part of the model's height): below it the colour mixes toward the water's, and the edge is smoothed against cyan. For amphibious units (duck, frog, fish, gator) both sets are made. |
@@ -65,21 +65,34 @@ duck, the buggy, the dirtbuggy, the fish, the frog, the snail, the dozer, the du
 render was registered onto the game's portrait to the pixel and compared face by face:
 
 - **Each portrait was lit on its own**, mostly by two low lights from either side, a little behind.
-  Tops read darker than sides.
 - **Hard cast shadows** from those lights.
 - **Reflective plastic**, mirroring the model's other parts and a dark sky over a bright floor (the
-  fish's jaw mirrors its head).
+  fish's jaw mirrors its head). With the low lights, this is why tops read darker than sides.
 - **Overexposed**, each colour channel clipped on its own: a shaded yellow turns orange, a lit one
   stays lemon.
-- **Glass** greys and dims what is behind it, with sharp reflections across it.
-- **Shine** on the tyres' rubber only; slopes darker than smooth faces; studs shown.
+- **Glass** that greys and dims what is behind it and mirrors its surroundings, brightest toward
+  its edges: the white bands across the windscreens.
+- **Shine** on the tyres' rubber only (the rubber itself matte); slopes darker than smooth faces.
 - **Kept as JPEG**: the white around each portrait rings with its noise.
 
-`wbrender/heronormal.py` renders the colours' ids, each pixel's surface direction, the sky's light,
-each light's hard shadow and what each pixel reflects, then lights them in Python, so any light can be tried without
-rendering again. `wbrender/herocam.py` fits each portrait's camera on the inside of the picture,
-roll included. A unit the game has a portrait of is lit with the rig fitted on it; a new unit
-borrows the rig of the portrait most like it (`hero_rig_from` in `config/units.json`).
+How it is done: `wbrender/heronormal.py` renders the colours' ids, each pixel's surface direction,
+the sky's light, each light's hard shadow and what each pixel reflects (a part, or a direction of
+the world), then lights them in Python, so any light can be tried without rendering again.
+`wbrender/herocam.py` fits each portrait's camera on the inside of the picture, roll included,
+with no lens wider than 18 mm.
+
+Which light a portrait gets:
+
+| Portrait | Lit with |
+|---|---|
+| A unit the game has a portrait of | The rig fitted on that portrait, with its colours and exposure |
+| A new unit (the bluebird, the cargo copter) | The rig of the game's portrait most like it (`hero_rig_from`: the duck's, the buggy's) |
+| A *consistent* portrait, from the map's own model | The camera and rig of the game's portrait it stands for (`consistent_like`: the dirtbuggy's map model is the buggy's portrait build in yellow; the freighter's portrait in the game is the tugboat's, `hero_as`). The lens is kept to 30 mm or longer. |
+
+A borrowed rig brings its exposure, matched to the model's median light, and its own colours. A
+colour it never saw is carried over by ratio from the portraits that fitted both it and one of the
+lender's colours (the game's yellows are lit far brighter than its reds), or else taken from the
+world palette at the lender's scale.
 
 The full write-up, with each unit's findings, is in [AUDIT.md](AUDIT.md).
 
@@ -109,11 +122,14 @@ python -m wbrender.extract_reference     # the game's sprites, into reference/ (
 python -m wbrender.render duck buggy     # out/<unit>/: the sprites, compare.png, report.json
 python -m wbrender.render all
 python -m wbrender.fit crab              # fit a unit's camera to the game's sprites again
-python -m wbrender.tune --write          # search the look against the game's sprites
+python -m wbrender.shade fit             # the map sprites' palette and light, from the game's sprites
+python -m wbrender.shade colours         # ... and the rest of the palette, from every unit
 python -m wbrender.models MY_MODEL.io --list
 python -m wbrender.herocam duck          # fit a portrait's camera (turn, elevation, lens, roll)
-python -m wbrender.heronormal shadows duck --group animal   # fit a portrait lighting rig
+python -m wbrender.heronormal rig duck --grey               # a game portrait's own rig: lights, shadows, reflections
+python -m wbrender.heronormal glass                         # the glass, on the buggy's and dirtbuggy's windscreens
 python -m wbrender.heronormal show duck buggy               # portraits beside the game's
+python -m wbrender.render buggy --consistent-heroes         # portraits from the map's own models
 python -m wbrender.posefit robot_lab 2460,2444 y --hero     # pose a joint as the game's model has it
 python -m wbrender.audit                 # every unit against the game's, worst first
 python -m wbrender.sheet out.png vehicle.duck.right vehicle.duck.water.right   # look at sprites, 6x
@@ -128,7 +144,14 @@ render side by side, 4× size) and `report.json` (for each direction: how much t
 
 Add a line to `config/units.json` (a name, the submodel, the sprite name, where it goes: `land`,
 `water` or `both`), or use the Blender add-on below. A unit the game has no sprites of uses the
-camera all the fitted units share.
+camera all the fitted units of its kind share. Other fields:
+
+- `flies`: hovers so many pixels over a shadow on the map (the bluebird, the cargo copter).
+- `hero_rig_from`: the game portrait whose lighting its portrait borrows.
+- `consistent_like`: the game portrait a consistent portrait of it stands for.
+- `pose`: joints turned as the game's model had them, `[{"match": part or submodel, "axis": "y",
+  "angle": degrees, "pivot": [x, y, z]}]` (fitted with `wbrender.posefit`).
+- `replace_parts`: parts swapped where a recreation takes a liberty with the game's build.
 
 ### The Blender add-on
 
@@ -165,12 +188,17 @@ hover over a shadow:
 
 The game's portraits are inconsistent: some show another build than the map's model (the buggy,
 the dirtbuggy), and the freighter's shows the tugboat. With *consistent* portraits, each is
-rendered from the map's own model instead:
+rendered from the map's own model instead, lit and framed as the game's portrait it stands for.
+The dirtbuggy's map model is the buggy's portrait build in yellow, so the game's buggy portrait is
+its reference:
 
 ![Consistent portraits: the game's beside the map model's](docs/showcase/consistent_portraits.png)
 
-What is still off, unit by unit (the trex and freezebot posed otherwise, the shark's diagonal
-sprites ...), is in [AUDIT.md](AUDIT.md).
+What is still off, unit by unit, is in [AUDIT.md](AUDIT.md):
+- the trex and the freezebot are posed otherwise;
+- the shark's up and down sprites are drawn diagonally;
+- the tugboat's portrait has stouter bricks than real ones;
+- the dirtbuggy's front lights and the buggy's hubs are built differently.
 
 ## Layout
 
@@ -179,12 +207,17 @@ sprites ...), is in [AUDIT.md](AUDIT.md).
 | `blender/wbsprite.py` | Everything inside Blender: import, look, waterline, skew, camera, shots, sprite cut-out |
 | `blender/render_cli.py` | Blender's side of a command-line job |
 | `addon/` | The Blender add-on (built with `tools/make_addon.py`) |
-| `wbrender/` | The command line: models, reference sprites, fitting, tuning, rendering, comparing |
-| `config/units.json` | The units: model, sprite name, land or water, studs |
+| `wbrender/` | The command line: models, reference sprites, fitting, rendering, comparing |
+| `wbrender/shade.py` | The map sprites' look: light passes composited with a palette learned from the game |
+| `wbrender/heronormal.py` | The portraits: lighting rigs, shadows, reflections, glass, consistent portraits |
+| `wbrender/herocam.py`, `wbrender/herofit.py` | The portraits' cameras |
+| `wbrender/posefit.py` | Posing a recreation's joints as the game's model had them |
+| `wbrender/audit.py`, `wbrender/lightprobe.py` | Every unit against the game's; where the portraits' lights stood |
+| `config/units.json` | The units: model, sprite name, land or water, studs, pose, portrait borrowing |
 | `config/style.json` | The look |
 | `config/fit/` | Each unit's fitted camera and turns |
 | `config/hero/` | Each portrait's fitted camera |
-| `config/hero_light.json` | The portraits' lighting rigs, palettes and glass |
+| `config/hero_light.json` | The portraits' lighting rigs (one per game portrait, one per kind), palettes, reflections and glass |
 | `extra/airport.ldr` | Our own model: the Airport |
 | `tools/ldraw_check.py` | Checks a hand-made LDraw model is real LEGO: on the grid, nothing inside another, nothing in the air |
 | `docs/showcase/` | The comparison images above (`python tools/showcase.py` makes them again) |

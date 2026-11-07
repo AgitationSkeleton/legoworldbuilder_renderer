@@ -97,8 +97,31 @@ is the tugboat's (`hero_as`). A borrowed rig takes the lender's exposure, matche
 median light, and the lender's colours; any other colour comes from the world palette at the
 lender's scale.
 
-**Still open:** the consistent dirtbuggy's yellow comes out pale: under the buggy's rig the floor's
-reflection washes yellow out more than it does red.
+A consistent portrait keeps the borrowed camera's turn and height but not a lens shorter than
+30 mm: the tugboat's portrait was fitted near 20 mm, which stretches the long freighter out of shape.
+
+A colour the lender never fitted (the buggy has no real yellow, only its headlights) is carried
+over by ratio: from each portrait that fitted both it and one of the lender's colours, as so many
+times that colour. The game's yellows are lit far brighter than its reds and clip to lemon; scaled
+as a whole, the dirtbuggy's yellow came out khaki and then golden. A ratio that leaves the colour's
+hue, or comes through a colour fitted past full brightness, is not used.
+
+## Glass and rubber
+
+- **Glass** mirrors its surroundings as well as showing what is behind it: the white bands across
+  the buggy's canopy and the dirtbuggy's windscreen. Fitted on those two windscreens, its
+  brightness spread now tracks the game's (the dirtbuggy's: game 32/81/108/150/225/248 at the
+  10th to 97th percentiles, render 55/72/107/150/225/250).
+- **Rubber** is matte: no mirror in it, or a tyre's underside catches the bright floor in white
+  specks. Its own tight highlights and rim light (raised to 0.9 for the buggy's white rims) stay.
+
+## The tugboat
+
+The game's tugboat portrait is blue, highly lit and reflective on the right of its hull. Its red and
+black bricks are stouter than real LEGO bricks, so no recreation lines up with it exactly. Its
+camera fitted to a 10 mm lens to make up for that; it is now held to 18 mm or longer and fitted
+again, and its rig refitted with reflections, the world reflected grey (unconstrained, it fitted a
+pink sky).
 
 ## Posing
 

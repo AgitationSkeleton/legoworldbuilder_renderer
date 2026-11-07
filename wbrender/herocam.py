@@ -84,7 +84,7 @@ def tries(unit, cams, size=256):
     return res
 
 
-def fit(unit, rounds=2, wide=True):
+def fit(unit, rounds=2, wide=True, min_lens=18.0):
     f = os.path.join(ROOT, 'config', 'hero', unit + '.json')
     old = json.load(open(f)) if os.path.exists(f) else {}
     if old.get('pinned'):
@@ -97,6 +97,9 @@ def fit(unit, rounds=2, wide=True):
 
     def evaluate(cs):
         nonlocal cols
+        # (no lens wider than min_lens: a wide lens's distortion can make up for a build's differences,
+        # the tugboat's fitted to 10 mm, and then stretches any model shown with it)
+        cs = [(h, e, max(l, min_lens), r) for h, e, l, r in cs]
         rs = tries(unit, cs)
         if cols is None:
             cols = flat_colours(rs[0][2])
@@ -135,7 +138,7 @@ def fit(unit, rounds=2, wide=True):
             cur = sc2[j][0]
             best = list(cs2[j])
         print('  round %d: heading %.1f elevation %.1f lens %.0f roll %.1f: error %.2f' % ((rnd + 1,) + tuple(best) + (cur,)), flush=True)
-    out = dict(old, unit=unit, heading=round(best[0] % 360, 1), elevation=round(best[1], 1), lens=round(best[2], 1), roll=round(best[3], 1),
+    out = dict(old, unit=unit, heading=round(best[0] % 360, 1), elevation=round(best[1], 1), lens=round(max(best[2], min_lens), 1), roll=round(best[3], 1),
                inside_error=round(cur, 2), model=UNITS[unit].get('hero_model') or UNITS[unit]['model'])
     out.setdefault('score', cam.get('score'))
     json.dump(out, open(f, 'w'), indent=1)

@@ -241,7 +241,12 @@ def hero_camera(unit, consistent=False):
         like = consistent_like(unit)
         p = os.path.join(ROOT, 'config', 'hero', like + '.json')
         if os.path.exists(p):
-            return json.load(open(p))
+            cam = json.load(open(p))
+            if like != unit:
+                # (its turn and height, not its lens: a lens fitted to a short model -- the tugboat's,
+                # 10 mm -- stretches a long one, the freighter, out of all shape)
+                cam = dict(cam, lens=max(cam['lens'], 30.0))
+            return cam
     p = os.path.join(ROOT, 'config', 'hero', unit + '.json')
     if os.path.exists(p) and not (consistent and UNITS[unit].get('hero_model')):
         return json.load(open(p))
