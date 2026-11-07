@@ -38,8 +38,8 @@ lighting and the colours were all measured on the game's own sprites and portrai
 - The renders of JappaWakka's models in the showcase (the buggy, the dirtbuggy, the bluebird, the
   cargo copter ...) are of their work.
 - **The Airport** is our own: hand-built Stud.io models (`extra/`) after the airport in LEGO set
-  4028, *World of Bricks*, the set the game's Cargo Copter comes from: the airport building, the
-  control tower and the runway lights, and the three together.
+  4028, *World of Bricks*, the set the game's Cargo Copter comes from (an airport building, a
+  control tower and runway lights). The Airport unit is the control tower.
 - [ImportLDraw](https://github.com/TobyLobster/ImportLDraw) (Toby Nelson, GPL-2.0) imports the
   models into Blender; the [LDraw](https://www.ldraw.org/) parts library supplies the parts.
 - [Blender MCP](https://github.com/ahujasid/blender-mcp) (Siddharth Ahuja) lets an AI assistant
@@ -189,12 +189,11 @@ hover over a shadow:
 
 ![The Bluebird, the Cargo Copter and the Airport](docs/showcase/new_units.png)
 
-The Airport, our own models after LEGO set 4028 (`extra/`), each framed as a building of the
-game's: all three together and the building alone as the house is, the control tower as the robot
-lab is (their map cameras, portrait cameras and portrait lighting, `like` in `config/units.json`),
-each brought to the size of its reference's sprite:
+The Airport: the control tower of our own models after LEGO set 4028 (`extra/`), framed as the
+game's robot lab is (its map camera, portrait camera and portrait lighting: `like` and
+`hero_rig_from` in `config/units.json`) and brought to the size of its sprite:
 
-![The Airport: together, the building, the control tower](docs/showcase/airport.png)
+![The Airport beside the game's robot lab](docs/showcase/airport.png)
 
 The game's portraits are inconsistent: some show another build than the map's model (the buggy,
 the dirtbuggy), and the freighter's shows the tugboat. With *consistent* portraits, each is

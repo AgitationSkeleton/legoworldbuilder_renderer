@@ -299,38 +299,14 @@
   }
  },
  "airport": {
-  "model": "airport_all",
-  "model_file": "extra/airport_all.ldr",
+  "model": "airport_controltower",
+  "model_file": "extra/airport_controltower.ldr",
   "sprite": "building.airport",
   "on": "land",
   "single": true,
   "unused": true,
-  "like": "house",
-  "hero_rig_from": "house",
-  "turn": 180,
-  "size": 1.3
- },
- "airport_building": {
-  "model": "airport_building",
-  "model_file": "extra/airport_building.ldr",
-  "sprite": "building.airport_building",
-  "on": "land",
-  "single": true,
-  "unused": true,
-  "like": "house",
-  "hero_rig_from": "house",
-  "turn": 180,
-  "size": 2.39
- },
- "airport_tower": {
-  "model": "airport_controltower",
-  "model_file": "extra/airport_controltower.ldr",
-  "sprite": "building.airport_tower",
-  "on": "land",
-  "single": true,
-  "unused": true,
   "like": "robot_lab",
-  "hero_rig_from": "house",
+  "hero_rig_from": "robot_lab",
   "turn": 180,
   "size": 0.73
  }

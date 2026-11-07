@@ -130,7 +130,7 @@ def settings(unit=None, rig_from=None):
                 for c, v in lender.get('colours', {}).items():
                     # (not black and the greys: the references' are unreliable -- built otherwise than the
                     # game's, or fitted on a few dark pixels: the tugboat's black is 2,2,2)
-                    if c in DISTRUST:
+                    if c in DISTRUST and c != '15':     # (a lender's white is its own white plate's: kept)
                         continue
                     w_ = Wp.get(c)
                     if w_ is not None and c not in DISTRUST:
@@ -175,6 +175,11 @@ def settings(unit=None, rig_from=None):
                         if w_ is not None:
                             w_ = np.array(w_, np.float32)
                             ok = ok and np.abs(v_ / max(1.0, v_.sum()) - w_ / max(1.0, w_.sum())).max() <= 0.1
+                        # (nor one far dimmer than the lender's own saturated colours: the game's reds are as
+                        # vivid as its blues -- carried through a dim one, the control tower's red came out maroon)
+                        strong = [max(v2) for k2, v2 in lender.get('colours', {}).items() if k2 not in NEUTRAL and max(v2) <= 280]
+                        if ok and strong and c not in NEUTRAL and v_.max() < float(np.median(strong)):
+                            v_ = v_ * (float(np.median(strong)) / max(v_.max(), 1.0))
                         if ok:
                             P['colours'][c] = [int(round(x)) for x in v_]
                 P['trusted'] = list(P['colours'])

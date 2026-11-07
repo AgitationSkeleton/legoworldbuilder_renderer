@@ -96,12 +96,9 @@ def main():
         c.paste(hero.resize((hero.width * 2, hero.height * 2), Image.NEAREST), (x + 20, yy))
         y += max(max(i.height * S for i in s_), hero.height * 2) + 30
     c.save(os.path.join(OUT, 'new_units.png'))
-    # the Airport, our own models, beside the game's buildings each is framed as
-    cols = [('house (game)', os.path.join(HERE, 'reference', 'building.house.png'), os.path.join(HERE, 'reference', 'building.house.hero.png')),
-            ('airport', out('airport', 'building.airport.png'), out('airport', 'building.airport.hero.png')),
-            ('airport building', out('airport_building', 'building.airport_building.png'), out('airport_building', 'building.airport_building.hero.png')),
-            ('robot lab (game)', os.path.join(HERE, 'reference', 'building.robot_lab.png'), os.path.join(HERE, 'reference', 'building.robot_lab.hero.png')),
-            ('control tower', out('airport_tower', 'building.airport_tower.png'), out('airport_tower', 'building.airport_tower.hero.png'))]
+    # the Airport, the control tower of our own models, beside the game's robot lab it is framed as
+    cols = [('robot lab (game)', os.path.join(HERE, 'reference', 'building.robot_lab.png'), os.path.join(HERE, 'reference', 'building.robot_lab.hero.png')),
+            ('airport (control tower)', out('airport', 'building.airport.png'), out('airport', 'building.airport.hero.png'))]
     S2 = 2
     ims = [(n, Image.open(a).convert('RGBA'), Image.open(b).convert('RGB')) for n, a, b in cols]
     W = sum(max(a.width * S, b.width * S2) + 14 for _, a, b in ims) + 10
