@@ -674,6 +674,10 @@ def run_passes(root, meshes, P, shots, size, samples=32):
     (default key, fill, ambient: 16-bit, linear) and <path>.alpha.png.  Answers the ids' codes."""
     info = frame(meshes)
     white, ids, legend = setup_passes(meshes, P)
+    # (each code's id number, as id_colour has it: for the reflection pass)
+    ids_index = {}
+    for key, v in legend.items():
+        ids_index[v['code']] = next(i for i in range(1, 4096) if ','.join(str(x) for x in id_colour(i)) == key)
     sc = bpy.context.scene
     done = []
     lights = P.get('passes') or [('key', P['key']), ('fill', P['fill']), ('ambient', None)]
@@ -757,6 +761,20 @@ def run_passes(root, meshes, P, shots, size, samples=32):
             for o in [o for o in sc.objects if o.type == 'LIGHT']:
                 bpy.data.objects.remove(o)
             shoot(root, meshes, Q, info, base + '.normal.png', s['heading'])
+        # what each pixel reflects: the part (its colour's id) or the world (the direction the ray leaves in)
+        if P.get('reflect_pass'):
+            for o in [o for o in sc.objects if o.type == 'LIGHT']:
+                bpy.data.objects.remove(o)
+            sc.cycles.max_bounces = 2
+            sc.cycles.glossy_bounces = 1
+            sc.cycles.transparent_max_bounces = 8
+            for which, emit, world_on in (('reflect', True, False), ('reflectdir', False, True)):
+                for o in meshes:
+                    for slot, c in zip(o.material_slots, o.get('wb_codes', [])):
+                        rgb = [x / 255.0 for x in id_colour(ids_index[c])]
+                        slot.material = mirror_material(c, rgb, emit)     # (Raw: written as given)
+                world_direction(world_on)
+                shoot(root, meshes, Q, info, base + '.' + which + '.png', s['heading'])
         sc.render.image_settings.color_depth = '8'
         for o in meshes:
             o.hide_render = False
@@ -786,6 +804,53 @@ def normal_material():
     nt.links.new(sc.outputs['Vector'], em.inputs['Color'])
     nt.links.new(em.outputs[0], out.inputs[0])
     return m
+
+
+def mirror_material(code, rgb, emit=True):
+    """Seen by the camera: a perfect mirror. Seen in another part's reflection: its colour's id (emit) or
+    black. So a mirror pass shows, at each pixel, which part it reflects."""
+    name = 'WB_mirror_%s_%d' % (code, int(emit))
+    m = bpy.data.materials.get(name) or bpy.data.materials.new(name)
+    m.use_nodes = True
+    nt = m.node_tree
+    nt.nodes.clear()
+    out = nt.nodes.new('ShaderNodeOutputMaterial')
+    lp = nt.nodes.new('ShaderNodeLightPath')
+    mix = nt.nodes.new('ShaderNodeMixShader')
+    em = nt.nodes.new('ShaderNodeEmission')
+    em.inputs['Color'].default_value = (rgb[0], rgb[1], rgb[2], 1) if emit else (0, 0, 0, 1)
+    gl = nt.nodes.new('ShaderNodeBsdfGlossy')
+    gl.inputs['Color'].default_value = (1, 1, 1, 1)
+    gl.inputs['Roughness'].default_value = 0.0
+    nt.links.new(lp.outputs['Is Camera Ray'], mix.inputs[0])
+    nt.links.new(em.outputs[0], mix.inputs[1])
+    nt.links.new(gl.outputs[0], mix.inputs[2])
+    nt.links.new(mix.outputs[0], out.inputs[0])
+    return m
+
+
+def world_direction(on):
+    """The world: black, or glowing with the direction a ray leaves in (0.5 + 0.5 d, the world's axes)."""
+    sc = bpy.context.scene
+    w = sc.world or bpy.data.worlds.new('WB')
+    sc.world = w
+    w.use_nodes = True
+    nt = w.node_tree
+    nt.nodes.clear()
+    out = nt.nodes.new('ShaderNodeOutputWorld')
+    bg = nt.nodes.new('ShaderNodeBackground')
+    bg.inputs['Strength'].default_value = 1.0
+    if on:
+        tc = nt.nodes.new('ShaderNodeTexCoord')
+        ma = nt.nodes.new('ShaderNodeVectorMath')
+        ma.operation = 'MULTIPLY_ADD'
+        ma.inputs[1].default_value = (0.5, 0.5, 0.5)
+        ma.inputs[2].default_value = (0.5, 0.5, 0.5)
+        nt.links.new(tc.outputs['Generated'], ma.inputs[0])
+        nt.links.new(ma.outputs['Vector'], bg.inputs['Color'])
+    else:
+        bg.inputs['Color'].default_value = (0, 0, 0, 1)
+    nt.links.new(bg.outputs[0], out.inputs[0])
 
 
 def height_material(z0, z1):

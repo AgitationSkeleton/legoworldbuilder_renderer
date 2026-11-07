@@ -1,8 +1,10 @@
 {
  "unit": "marina",
- "heading": 310,
- "elevation": 20,
- "lens": 22.5,
+ "heading": 291.1,
+ "elevation": 36.9,
+ "lens": 22,
  "score": 0.7721,
- "model": "Marina"
+ "model": "Marina",
+ "roll": 0.0,
+ "inside_error": 44.48
 }

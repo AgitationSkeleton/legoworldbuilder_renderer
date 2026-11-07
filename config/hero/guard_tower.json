@@ -1,8 +1,10 @@
 {
  "unit": "guard_tower",
- "heading": 307.5,
- "elevation": 40,
- "lens": 22.5,
+ "heading": 303.3,
+ "elevation": 23.4,
+ "lens": 29.7,
  "score": 0.8349,
- "model": "Guard Tower"
+ "model": "Guard Tower",
+ "roll": -4.0,
+ "inside_error": 36.8
 }

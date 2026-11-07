@@ -1,8 +1,10 @@
 {
  "unit": "nursery",
- "heading": 0,
- "elevation": 40,
- "lens": 195.0,
+ "heading": 356.8,
+ "elevation": 20.5,
+ "lens": 135.0,
  "score": 0.9263,
- "model": "Nursery"
+ "model": "Nursery",
+ "roll": 0.0,
+ "inside_error": 36.37
 }

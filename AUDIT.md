@@ -62,6 +62,14 @@ face by face (`wbrender/heronormal.py`). Findings:
 - **Hard cast shadows.** Faces turned to a light but behind something are half as bright and less.
   Shadows improve every portrait's fit: the fish 8.3 against 20.3 without, the snail 14.1 against
   21.1, the duck 5.4 against 8.1.
+- **Reflective plastic.** The plastic mirrors the model's other parts and its surroundings: the
+  fish's jaw top mirrors the head above it. Fitted together with each portrait's lights, the
+  portraits agree on reflectivity around 10–25% face on, rising toward the edges, in a studio with a
+  **dark sky above and a bright floor below**. That is the other half of why tops read darker than
+  sides. Each rig's reflections improve its fit markedly: the duck 22.5 to 11.2, the fish 17.2 to
+  12.1, the dump truck 33.1 to 22.6 (pixel error). The reflection pass (`reflect_pass` in
+  `blender/wbsprite.py`) records which part, or which direction of the world, each pixel reflects;
+  the compositor mixes in that part's colour or the fitted sky and floor.
 - **Overexposed, each channel clipped on its own.** A yellow's red is 255 on every face, lit or
   shaded; only its green carries the light. That turns a shaded yellow orange and keeps a lit one
   lemon.
@@ -81,6 +89,16 @@ How the renderer uses this:
   colour's median across the fitted portraits, brought to the same scale. Black, the greys and white
   come from the world palette instead: JappaWakka's builds put black where the game's have grey, and
   the references' whites are mostly shaded.
+
+Consistent portraits (each rendered from the map's own model) borrow the camera and the rig of the
+game's portrait they stand for. The dirtbuggy's map model is the buggy's portrait build in yellow,
+so the buggy's portrait is the reference for it (`consistent_like`). The freighter's game portrait
+is the tugboat's (`hero_as`). A borrowed rig takes the lender's exposure, matched to the model's
+median light, and the lender's colours; any other colour comes from the world palette at the
+lender's scale.
+
+**Still open:** the consistent dirtbuggy's yellow comes out pale: under the buggy's rig the floor's
+reflection washes yellow out more than it does red.
 
 ## Posing
 

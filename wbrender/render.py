@@ -225,8 +225,23 @@ def on_white(im, box, margin=1):
     return Image.fromarray(np.uint8(np.clip(out * 255 + 0.5, 0, 255)), 'RGB').convert('RGBA')
 
 
+def consistent_like(unit):
+    """The game's portrait a consistent portrait of the unit stands for."""
+    u = UNITS[unit]
+    return u.get('consistent_like') or u.get('hero_as') or unit
+
+
 def hero_camera(unit, consistent=False):
     """The portrait's camera: the unit's fitted one, or the shared one turned as against its map turn."""
+    if consistent:
+        # (a consistent portrait: the camera of the game's portrait it stands for -- config/units.json
+        # 'consistent_like' (the dirtbuggy's map model is the buggy's portrait build in yellow), the
+        # portrait it shows in the game (the freighter's: the tugboat's), or its own; the recreations
+        # all face one way, so a camera carries over)
+        like = consistent_like(unit)
+        p = os.path.join(ROOT, 'config', 'hero', like + '.json')
+        if os.path.exists(p):
+            return json.load(open(p))
     p = os.path.join(ROOT, 'config', 'hero', unit + '.json')
     if os.path.exists(p) and not (consistent and UNITS[unit].get('hero_model')):
         return json.load(open(p))

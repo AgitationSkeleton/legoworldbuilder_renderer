@@ -24,12 +24,12 @@ lighting and the colours were all measured on the game's own sprites and portrai
 
 ## Credits
 
-- **The models** these tools were built and tuned with are **JappaWakka**'s Stud.io recreations
+- **The models** these tools were built and tuned with are **[JappaWakka](https://github.com/JappaWakka)**'s Stud.io recreations
   of World Builder's units, buildings and pickups (including the cut Bluebird and Cargo Copter),
   shared in their answer to
   [World Builder Game Units](https://bricks.stackexchange.com/questions/15211/world-builder-game-units)
   on Bricks Stack Exchange: [JappaWakka's answer](https://bricks.stackexchange.com/a/16711)
-  ([profile](https://bricks.stackexchange.com/users/19176/jappawakka)). The models are theirs and
+  ([Stack Exchange profile](https://bricks.stackexchange.com/users/19176/jappawakka), [GitHub](https://github.com/JappaWakka)). The models are theirs and
   are **not** included here: get them from the link in that answer.
 - **LEGO World Builder** and its sprites are The LEGO Group's. No game data is included: the
   comparison tools read the game's sprites from your own copy (below). The showcase images in
@@ -67,14 +67,16 @@ render was registered onto the game's portrait to the pixel and compared face by
 - **Each portrait was lit on its own**, mostly by two low lights from either side, a little behind.
   Tops read darker than sides.
 - **Hard cast shadows** from those lights.
+- **Reflective plastic**, mirroring the model's other parts and a dark sky over a bright floor (the
+  fish's jaw mirrors its head).
 - **Overexposed**, each colour channel clipped on its own: a shaded yellow turns orange, a lit one
   stays lemon.
 - **Glass** greys and dims what is behind it, with sharp reflections across it.
 - **Shine** on the tyres' rubber only; slopes darker than smooth faces; studs shown.
 - **Kept as JPEG**: the white around each portrait rings with its noise.
 
-`wbrender/heronormal.py` renders the colours' ids, each pixel's surface direction, the sky's light
-and each light's hard shadow, then lights them in Python, so any light can be tried without
+`wbrender/heronormal.py` renders the colours' ids, each pixel's surface direction, the sky's light,
+each light's hard shadow and what each pixel reflects, then lights them in Python, so any light can be tried without
 rendering again. `wbrender/herocam.py` fits each portrait's camera on the inside of the picture,
 roll included. A unit the game has a portrait of is lit with the rig fitted on it; a new unit
 borrows the rig of the portrait most like it (`hero_rig_from` in `config/units.json`).
@@ -185,7 +187,7 @@ sprites ...), is in [AUDIT.md](AUDIT.md).
 | `config/hero_light.json` | The portraits' lighting rigs, palettes and glass |
 | `extra/airport.ldr` | Our own model: the Airport |
 | `tools/ldraw_check.py` | Checks a hand-made LDraw model is real LEGO: on the grid, nothing inside another, nothing in the air |
-| `docs/showcase/` | The comparison images above |
+| `docs/showcase/` | The comparison images above (`python tools/showcase.py` makes them again) |
 
 Not published, and ignored by git: `models/` (JappaWakka's), `reference/` (the game's),
 `out/`, `work/`, `local.json`.

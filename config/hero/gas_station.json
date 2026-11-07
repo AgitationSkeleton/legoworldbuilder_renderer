@@ -1,8 +1,10 @@
 {
  "unit": "gas_station",
- "heading": 333,
- "elevation": 35,
- "lens": 30,
+ "heading": 341.5,
+ "elevation": 39.9,
+ "lens": 30.0,
  "score": 0.861,
- "model": "Gas Station"
+ "model": "Gas Station",
+ "roll": 0.0,
+ "inside_error": 46.02
 }

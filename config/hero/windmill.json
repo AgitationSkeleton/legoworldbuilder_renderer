@@ -1,8 +1,10 @@
 {
  "unit": "windmill",
- "heading": 190,
- "elevation": 40,
- "lens": 225.0,
+ "heading": 206.6,
+ "elevation": 2.0,
+ "lens": 40,
  "score": 0.7022,
- "model": "Windmill"
+ "model": "Windmill",
+ "roll": 8.0,
+ "inside_error": 57.46
 }

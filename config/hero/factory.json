@@ -1,8 +1,10 @@
 {
  "unit": "factory",
- "heading": 10,
- "elevation": 20,
- "lens": 65.0,
+ "heading": 358.4,
+ "elevation": 21.0,
+ "lens": 22,
  "score": 0.8629,
- "model": "Factory"
+ "model": "Factory",
+ "roll": 0.0,
+ "inside_error": 42.37
 }

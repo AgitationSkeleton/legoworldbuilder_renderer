@@ -147,6 +147,18 @@ def boxed(p, box, margin=1, k=None, at=None):
     out['codes'] = fill_codes(codes, cov)
     if p.get('shadow'):
         out['shadow'] = {k_: field(v)[0] for k_, v in p['shadow'].items()}
+    if p.get('rcodes') is not None:
+        # (what each pixel reflects: the part by majority, as the codes; how much, and the world's direction, averaged)
+        rb = np.zeros((nh, nw), np.float32)
+        rcs = np.full((nh, nw), '', dtype=object)
+        for c in [c for c in np.unique(p['rcodes']) if c]:
+            cv = np.asarray(Image.fromarray(np.float32(p['rcodes'][y0:y1, x0:x1] == c), 'F').resize((nw, nh), Image.BOX))
+            rcs[cv > rb] = c
+            rb = np.maximum(rb, cv)
+        out['rcodes'] = rcs
+        out['robj'] = field(p['robj'])[0]
+        rd = np.stack([field(p['rdir'][..., i])[0] for i in range(3)], -1)
+        out['rdir'] = rd / np.maximum(np.linalg.norm(rd, axis=-1, keepdims=True), 1e-6)
     if 'N' in p:
         # (surface directions: averaged, then made unit again)
         n = np.stack([field(p['N'][..., i])[0] for i in range(3)], -1)

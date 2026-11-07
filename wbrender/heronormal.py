@@ -64,12 +64,19 @@ def group_of(unit):
     return 'animal' if unit in ANIMALS else 'vehicle'
 
 
-def settings(unit=None):
-    """The light and palette, for a unit: its kind's rig over the shared settings."""
+def settings(unit=None, rig_from=None):
+    """The light and palette, for a unit: its kind's rig over the shared settings. rig_from: lit with that
+    unit's portrait's rig (and exposure), the colours as for a portrait of no game's."""
     P = json.load(open(PAL, encoding='utf-8')) if os.path.exists(PAL) else {'colours': {}, 'light': LIGHT0}
     G = None
     own = False
-    if unit:
+    lender = None
+    if rig_from and rig_from != unit and (P.get('units') or {}).get(rig_from):
+        G = P['units'][rig_from]
+        lender = G
+        ex = G.get('exposures', {}).get(rig_from, 1.0)
+        G = dict(G, exposures={unit: ex})
+    elif unit:
         # (a portrait of the game's own: the rig fitted on it alone; any other: its kind's)
         G = (P.get('units') or {}).get(unit)
         own = G is not None
@@ -79,12 +86,13 @@ def settings(unit=None):
         if G is None and like:
             G = (P.get('units') or {}).get(like)
             if G is not None:
+                lender = G
                 G = dict(G, exposures={})
         G = G or (P.get('groups') or {}).get(group_of(unit))
     if G:
         P = dict(P)
         P['light'] = dict(P['light'], **{k: v for k, v in G['light'].items() if k in FITTED})
-        for k in ('colours', 'world_scale'):
+        for k in ('colours', 'world_scale', 'reflect'):
             if k in G:
                 P[k] = G[k]
         P['exposures'] = dict(P.get('exposures', {}), **G.get('exposures', {}))
@@ -108,6 +116,24 @@ def settings(unit=None):
                 if c not in DISTRUST:
                     P['colours'][c] = [int(x) for x in np.median(np.array(vs), 0) * here]
             P['trusted'] = [c for c in P['colours'] if c not in DISTRUST]
+            if lender is not None:
+                # (a borrowed rig: the lender's own colours, fitted under the very rig lent, and every other
+                # the world palette's at the lender's scale -- not the portraits' consensus, whose rigs'
+                # scales, fitted each with its own reflections, do not agree)
+                P['world_scale'] = lender.get('world_scale') or world_scale(lender)
+                # (but not one far from the world palette's at that scale: fitted on a few pixels -- the
+                # buggy's yellow is its headlights)
+                from .shade import palette as world
+                Wp = world()['colours']
+                P['colours'] = {}
+                for c, v in lender.get('colours', {}).items():
+                    w_ = Wp.get(c)
+                    if w_ is not None and c not in DISTRUST:
+                        ratio = (sum(v) + 1) / (sum(w_) * (P['world_scale'] or 1.0) + 1)
+                        if not 0.5 <= ratio <= 2.0:
+                            continue
+                    P['colours'][c] = v
+                P['trusted'] = list(P['colours'])
     return P
 
 
@@ -121,9 +147,9 @@ def render(unit, size=384, samples=64, consistent=False, work=None, shadows=None
     work = work or os.path.join(ROOT, 'work', 'heronormal', unit + ('_c' if consistent else ''))
     os.makedirs(work, exist_ok=True)
     params = {'hero': True, 'hero_elevation': cam['elevation'], 'hero_lens': cam['lens'], 'hero_roll': cam.get('roll', 0.0), 'passes': [('ambient', None)],
-              'softness': 0.3, 'height_pass': False, 'normal_pass': True, 'seam_pass': True}
+              'softness': 0.3, 'height_pass': False, 'normal_pass': True, 'seam_pass': True, 'reflect_pass': True}
     model = model_path(unit, hero=not consistent)
-    stamp = json.dumps({'cam': cam, 'model': model, 'size': size, 'samples': samples, 'v': 2}, sort_keys=True)
+    stamp = json.dumps({'cam': cam, 'model': model, 'size': size, 'samples': samples, 'v': 3}, sort_keys=True)
     done = os.path.join(work, 'made.json')
     if os.path.exists(done) and json.load(open(done)).get('stamp') == stamp:
         legend = json.load(open(done))['legend']
@@ -204,6 +230,20 @@ def read(base, legend):
     if os.path.exists(base + '.seams.png'):
         # (1 where a seam runs, 0 on a face)
         out['K'] = [1.0 - img('seams')[..., :3].mean(-1)]
+    if os.path.exists(base + '.reflect.png'):
+        # what each pixel reflects: a part (the nearest colour id; robj how much of the pixel) or the world
+        # (rdir: the direction the reflected ray leaves in, the world's axes, z up)
+        r = img('reflect')[..., :3] * 255.0
+        keys = [(k_, np.array([int(x) for x in k_.split(',')], np.float32)) for k_ in legend]
+        d = np.stack([np.abs(r - c).sum(-1) for _, c in keys], -1)
+        near = d.argmin(-1)
+        hit = r.max(-1) > 12
+        rc = np.full(r.shape[:2], '', dtype=object)
+        for i, (k_, _) in enumerate(keys):
+            rc[hit & (near == i)] = legend[k_]['code']
+        out['rcodes'] = rc
+        out['robj'] = np.clip(r.max(-1) / 60.0, 0, 1).astype(np.float32)
+        out['rdir'] = img('reflectdir')[..., :3] * 2 - 1
     return out
 
 
@@ -294,6 +334,30 @@ def world_scale(pal):
     return float(np.median(r)) if r else None
 
 
+def reflected(s, pal, L, R):
+    """(rgb, r): what each pixel reflects, and how much: the part it sees (its own colour, as lit on
+    average) or the world (a sky above, a ground below, blended about the horizon); the plastic's
+    reflectivity rising toward the edges (Fresnel)."""
+    rgb = np.zeros(s['N'].shape, np.float32)
+    rc = s.get('rcodes')
+    if rc is not None:
+        from .shade import palette as world
+        Wp = world()['colours']
+        k0 = pal.get('world_scale') or 1.0
+        for code in np.unique(rc):
+            if code:
+                m = rc == code
+                v = Wp.get(code) or s['legend'].get(code) or [128, 128, 128]
+                rgb[m] = np.array(v, np.float32)[None, :] / 255.0 * k0 * R['part']
+    z = s['rdir'][..., 2] if s.get('rdir') is not None else np.zeros(s['N'].shape[:2], np.float32)
+    t = np.clip(0.5 + z / max(R['horizon'], 1e-3), 0, 1)
+    env = np.array(R['ground'], np.float32) + (np.array(R['sky'], np.float32) - np.array(R['ground'], np.float32)) * t[..., None]
+    w = s.get('robj', np.zeros(z.shape, np.float32))[..., None] if rc is not None else 0
+    out = rgb * w + env * (1 - w)
+    r = R['r0'] + R['fresnel'] * np.power(1 - np.clip(s['N'] @ V, 0, 1), 5)
+    return out, np.clip(r, 0, 1)
+
+
 def light_rgb(s, pal, L):
     v, spec = lit(s, L)
     # (each of the game's portraits was rendered with its own exposure -- the dirtbuggy's yellow a
@@ -304,6 +368,10 @@ def light_rgb(s, pal, L):
         if code:
             m = s['codes'] == code
             rgb[m] = base_of(code, s['legend'], pal)[None, :] * v[m][:, None]
+    R = pal.get('reflect')
+    if R and s.get('rdir') is not None:
+        refl, r = reflected(s, pal, L, R)
+        rgb = rgb * (1 - r[..., None]) + refl * r[..., None]
     return rgb + spec[..., None]
 
 
@@ -666,14 +734,50 @@ def portrait(unit, consistent=False, box=None, source=None):
     source = source or unit
     ref = hero_ref(unit)
     box = box or (Image.open(ref).size if ref and not consistent else HERO_SIZE)
-    P = settings(source)
+    if consistent:
+        # (lit as the game's portrait it stands for: its rig, its exposure)
+        from .render import consistent_like
+        like = consistent_like(unit)
+        P = settings(source, rig_from=like)
+        if like == source:
+            P = settings(source)
+    else:
+        P = settings(source)
     shadows = [(float(l['elevation']), float(l['azimuth'])) for l in P['light']['lights'] if l.get('shadow')]
     s = boxed(render(source, consistent=consistent, shadows=shadows or None), box)
     s['up'] = up_of(source, consistent)
     if s.get('behind') is not None:
         s['behind']['up'] = s['up']
-    s['exposure'] = 1.0 if consistent else P.get('exposures', {}).get(source, 1.0)
+    s['exposure'] = P.get('exposures', {}).get(source, 1.0)
+    # (a borrowed rig: the exposure too, so the portrait is as bright as the one the rig was fitted on --
+    # a model turned otherwise to the lights, the freighter's long hull, takes less of them)
+    lender = (consistent and consistent_like_of(unit)) or UNITS.get(unit, {}).get('hero_rig_from')
+    if lender and lender != source:
+        s['exposure'] *= exposure_match(s, P, lender)
     return picture(s, P, box)
+
+
+def consistent_like_of(unit):
+    from .render import consistent_like
+    return consistent_like(unit)
+
+
+def exposure_match(s, P, lender):
+    """How much brighter the lender's own portrait is lit than this one, by their median light."""
+    try:
+        Q = settings(lender)
+        shadows = [(float(l['elevation']), float(l['azimuth'])) for l in Q['light']['lights'] if l.get('shadow')]
+        ref = hero_ref(lender)
+        box = Image.open(ref).size if ref else (107, 100)
+        t = boxed(render(lender, shadows=shadows or None), box)
+        t['up'] = up_of(lender)
+        vt, _ = lit(t, Q['light'])
+        vs, _ = lit(s, P['light'])
+        a = np.median(vt[(t['cov'] > 0.98) & (t['codes'] != '')])
+        b = np.median(vs[(s['cov'] > 0.98) & (s['codes'] != '')])
+        return float(np.clip(a / max(b, 1e-3), 0.6, 1.8))
+    except Exception:
+        return 1.0
 
 
 def render_portrait(unit, out_path, consistent=False, box=None):
@@ -683,7 +787,7 @@ def render_portrait(unit, out_path, consistent=False, box=None):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument('what', choices=['fit', 'faces', 'shadows', 'glass', 'finish', 'show'])
+    ap.add_argument('what', choices=['fit', 'faces', 'shadows', 'glass', 'reflect', 'reflect-rigs', 'finish', 'show'])
     ap.add_argument('units', nargs='*')
     ap.add_argument('--consistent', action='store_true')
     ap.add_argument('--front-key', action='store_true', help='shadows: the key light in front of the model (azimuth within 110)')
@@ -701,6 +805,13 @@ def main():
     if a.what == 'shadows':
         kf = (lambda e, az: abs(az) <= 110) if a.front_key else None
         shadow_fit(a.units or GROUPS[a.group or 'vehicle'], group=a.group, key_from=kf)
+        return
+    if a.what == 'reflect-rigs':
+        for u in (a.units or sorted(json.load(open(PAL, encoding='utf-8')).get('units', {}))):
+            reflect_rig(u)
+        return
+    if a.what == 'reflect':
+        reflect_fit(a.units or ['fish', 'duck', 'frog', 'snail', 'buggy', 'dirtbuggy', 'dozer', 'dumptruck'])
         return
     if a.what == 'glass':
         glass_fit(tuple(a.units) if a.units else ('buggy', 'dirtbuggy'))
@@ -1090,6 +1201,192 @@ def shadow_fit(units, group=None, tries=1500, rounds=3, seed=3, key_from=None, s
     json.dump(P_, open(PAL, 'w', encoding='utf-8'), indent=1)
     print('written to config/hero_light.json%s' % (', unit ' + units[0] if unit_rig else ', group ' + group if group else ''))
     return out
+
+
+# ---------- reflections ----------
+
+def reflect_fit(units, tries=2500, steps=2500, seed=7):
+    """The plastic's reflections, fitted on the game's portraits (each lit by its own rig): how much it
+    reflects face on and at the edges, how bright the parts it reflects are, and the world about it (a
+    sky above, a ground below). The fish shows them best: its jaw's top mirrors the head above it."""
+    data = []
+    for u in units:
+        im = Image.open(hero_ref(u))
+        P = settings(u)
+        shadows = [(float(l['elevation']), float(l['azimuth'])) for l in P['light']['lights'] if l.get('shadow')]
+        p = render(u, shadows=shadows or None)
+        reg = registered(p, im)
+        s = boxed(p, im.size, k=reg[1], at=reg[2])
+        s['up'] = up_of(u)
+        s['exposure'] = P.get('exposures', {}).get(u, 1.0)
+        R_ = np.asarray(im.convert('RGB'), np.float32) / 255.0
+        h, w = s['cov'].shape
+        y, x = s['at']
+        Rc = R_[y:y + h, x:x + w]
+        c = s['codes']
+        keep = (s['cov'] > 0.98) & (c != '') & ~np.isin(c, s['glass']) & (Rc.min(-1) < 0.97)
+        P0 = dict(P)
+        P0.pop('reflect', None)
+        base = light_rgb(s, P0, P0['light'])[keep]
+        data.append((u, s, keep, base, Rc[keep], P0))
+        print('  %s: registered %.3f, %d pixels' % (u, reg[0], keep.sum()), flush=True)
+
+    def err(R):
+        e = []
+        for u, s, keep, base, game, P0 in data:
+            refl, r = reflected(s, P0, P0['light'], R)
+            mine = np.clip(base * (1 - r[keep][:, None]) + refl[keep] * r[keep][:, None], 0, 1)
+            d = np.abs(mine - game).mean(1)
+            e.append(np.sort(d)[: int(len(d) * 0.85)].mean())
+        return float(np.mean(e) * 255)
+
+    none = {'r0': 0.0, 'fresnel': 0.0, 'part': 1.0, 'sky': [0, 0, 0], 'ground': [0, 0, 0], 'horizon': 0.3}
+    e0 = err(none)
+    rng = np.random.default_rng(seed)
+    best = (e0, none)
+    for t in range(tries):
+        R = {'r0': rng.uniform(0, 0.5), 'fresnel': rng.uniform(0, 0.8), 'part': rng.uniform(0.3, 1.5),
+             'sky': list(rng.uniform(0, 1.2, 3)), 'ground': list(rng.uniform(0, 1.2, 3)), 'horizon': rng.uniform(0.05, 1.0)}
+        e = err(R)
+        if e < best[0]:
+            best = (e, R)
+    e, R = best
+    for it in range(steps):
+        k = 0.5 ** (it / 800)
+        Q = {'r0': float(np.clip(R['r0'] + rng.normal(0, 0.03 * k), 0, 0.9)), 'fresnel': float(np.clip(R['fresnel'] + rng.normal(0, 0.05 * k), 0, 1)),
+             'part': float(np.clip(R['part'] + rng.normal(0, 0.06 * k), 0.1, 2)),
+             'sky': [float(np.clip(v + rng.normal(0, 0.05 * k), 0, 1.5)) for v in R['sky']],
+             'ground': [float(np.clip(v + rng.normal(0, 0.05 * k), 0, 1.5)) for v in R['ground']],
+             'horizon': float(np.clip(R['horizon'] + rng.normal(0, 0.04 * k), 0.02, 1.5))}
+        eq = err(Q)
+        if eq < e:
+            e, R = eq, Q
+    print('reflections: error %.2f (without them %.2f)' % (e, e0))
+    print('  %s' % {k: (round(v, 3) if not isinstance(v, list) else [round(x, 2) for x in v]) for k, v in R.items()})
+    P = json.load(open(PAL, encoding='utf-8'))
+    P['reflect'] = R
+    P['reflect_error'] = {'with': round(e, 2), 'without': round(e0, 2), 'fitted_on': list(units)}
+    json.dump(P, open(PAL, 'w', encoding='utf-8'), indent=1)
+    print('written to config/hero_light.json')
+    return R
+
+
+def reflect_rig(unit, steps=3000, seed=11):
+    """A portrait's rig refined with the plastic's reflections in it: the lights where the rig has them,
+    their strengths, the sky, the gamma and the exposure walked again together with how much the plastic
+    reflects (face on, and toward its edges), how bright the parts it reflects are and the world about it.
+    Fitted together, the reflections are not pre-empted by the lights (a rig fitted without them darkens
+    the tops itself). Pixel by pixel, the palette solved anew each step."""
+    im = Image.open(hero_ref(unit))
+    P = json.load(open(PAL, encoding='utf-8'))
+    rig = P['units'][unit]
+    Pu = settings(unit)
+    shadows = [(float(l['elevation']), float(l['azimuth'])) for l in rig['light']['lights'] if l.get('shadow')]
+    p = render(unit, shadows=shadows or None)
+    reg = registered(p, im)
+    s = boxed(p, im.size, k=reg[1], at=reg[2])
+    s['up'] = up_of(unit)
+    R_ = np.asarray(im.convert('RGB'), np.float32) / 255.0
+    h, w = s['cov'].shape
+    y, x = s['at']
+    Rc = R_[y:y + h, x:x + w]
+    c = s['codes']
+    keep = (s['cov'] > 0.98) & (c != '') & ~np.isin(c, s['glass']) & (Rc.min(-1) < 0.97)
+    G = Rc[keep]
+    codes = c[keep].astype(str)
+    from .shade import palette as world
+    Wp = world()['colours']
+    # (the parts reflected: their colour as the world palette has it, brought to this rig's scale)
+    k0 = rig.get('world_scale') or 1.0
+
+    def part_rgb(code):
+        v = Wp.get(code) or s['legend'].get(code) or [128, 128, 128]
+        return np.array(v, np.float32) / 255.0 * k0
+    rc = s['rcodes']
+    partcol = np.zeros(s['N'].shape, np.float32)
+    for code in np.unique(rc):
+        if code:
+            partcol[rc == code] = part_rgb(code)
+    partcol = partcol[keep]
+    robj = s['robj'][keep][:, None]
+    rz = s['rdir'][..., 2][keep]
+    nv = np.clip(s['N'] @ V, 0, 1)[keep]
+
+    def unpackL(x):
+        L = dict(Pu['light'])
+        L['ambient'], L['occlusion'], L['gamma'], L['slope'] = float(max(x[0], 0.01)), float(np.clip(x[1], 0, 2)), float(np.clip(x[2], 0.4, 2.5)), float(np.clip(x[3], 0, 0.8))
+        L['lights'] = [dict(li, w=float(max(x[4 + i], 0)) if i else 1.0) for i, li in enumerate(rig['light']['lights'])]
+        R = {'r0': float(np.clip(x[7], 0, 0.8)), 'fresnel': float(np.clip(x[8], 0, 1)), 'part': float(np.clip(x[9], 0, 2)),
+             'sky': [float(np.clip(v, 0, 1.6)) for v in x[10:13]], 'ground': [float(np.clip(v, 0, 1.6)) for v in x[13:16]],
+             'horizon': float(np.clip(x[16], 0.02, 1.5))}
+        return L, R, float(np.exp(x[17]))
+
+    def evaluate(x, want=False):
+        L, R, ex = unpackL(x)
+        v, white = lit(s, L)
+        v = v[keep] * ex
+        white = white[keep]
+        t = np.clip(0.5 + rz / max(R['horizon'], 1e-3), 0, 1)[:, None]
+        env = np.array(R['ground'], np.float32) + (np.array(R['sky'], np.float32) - np.array(R['ground'], np.float32)) * t
+        refl = partcol * R['part'] * robj + env * (1 - robj)
+        r = np.clip(R['r0'] + R['fresnel'] * np.power(1 - nv, 5), 0, 1)[:, None]
+        # (the palette: what is left once the reflection is taken off, over the light)
+        rest = (G - r * refl - white[:, None]) / np.maximum(v[:, None] * (1 - r), 1e-3)
+        pal = {}
+        pred = np.zeros_like(G)
+        for code in np.unique(codes):
+            m = codes == code
+            col = np.zeros(3, np.float32)
+            for ch in range(3):
+                ok = G[m][:, ch] < 0.94
+                col[ch] = np.median(rest[m][ok, ch]) if ok.sum() >= 10 else 0.99 / max(np.quantile(v[m], 0.03), 0.1)
+            if code in NEUTRAL:
+                col[:] = col.mean()
+            pal[code] = np.clip(col, 0, 4)
+            pred[m] = pal[code] * v[m][:, None] * (1 - r[m]) + r[m] * refl[m] + white[m][:, None]
+        d = np.abs(np.clip(pred, 0, 1) - G).mean(1)
+        e = float(np.sort(d)[: int(len(d) * 0.85)].mean() * 255)
+        return (e, pal, L, R, ex) if want else e
+
+    L0 = rig['light']
+    ws = [li['w'] for li in L0['lights']] + [0.0, 0.0, 0.0]
+    # (0..3 ambient, occlusion, gamma, slope; 4..5 the second and third lights' strengths; 6 spare;
+    # 7..16 the reflections; 17 the exposure's log)
+    x = np.array([L0['ambient'], L0['occlusion'], L0['gamma'], L0.get('slope', 0.0), ws[1], ws[2], 0.0,
+                  0.0, 0.0, 0.8, 0.1, 0.1, 0.1, 0.8, 0.8, 0.8, 0.3, np.log(rig.get('exposures', {}).get(unit, 1.0))], np.float64)
+    x_none = x.copy()
+    x_none[7] = x_none[8] = 0.0
+    e0 = evaluate(x_none)
+    e = evaluate(x)
+    rng = np.random.default_rng(seed)
+    step = np.array([0.04, 0.06, 0.05, 0.03, 0.06, 0.06, 0, 0.03, 0.05, 0.08, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.05, 0.03])
+    # (a wide look at the reflections first)
+    best = (e, x)
+    for t in range(800):
+        y_ = x.copy()
+        y_[7:17] = [rng.uniform(0, 0.5), rng.uniform(0, 0.8), rng.uniform(0.3, 1.5)] + list(rng.uniform(0, 1.2, 6)) + [rng.uniform(0.05, 1)]
+        ey = evaluate(y_)
+        if ey < best[0]:
+            best = (ey, y_)
+    e, x = best
+    for it in range(steps):
+        y_ = x + rng.normal(0, 1, len(x)) * step * (0.5 ** (it / 1000))
+        ey = evaluate(y_)
+        if ey < e:
+            e, x = ey, y_
+    e, pal, L, R, ex = evaluate(x, want=True)
+    print('%s: %.2f with reflections (its rig without them %.2f); reflectivity %.2f + %.2f at the edges, parts x%.2f, sky %s, ground %s'
+          % (unit, e, e0, R['r0'], R['fresnel'], R['part'], [round(v, 2) for v in R['sky']], [round(v, 2) for v in R['ground']]), flush=True)
+    if e < e0 - 0.2:
+        rig = dict(rig, light=dict(rig['light'], **{k: L[k] for k in ('ambient', 'occlusion', 'gamma', 'slope', 'lights')}),
+                   reflect=R, colours={c_: [int(round(float(t) * 255)) for t in v] for c_, v in pal.items()},
+                   exposures={unit: round(ex, 3)}, reflect_error=round(e, 2))
+        rig['world_scale'] = world_scale(rig)     # (the palette refitted: its scale to the world's anew)
+        P = json.load(open(PAL, encoding='utf-8'))
+        P['units'][unit] = rig
+        json.dump(P, open(PAL, 'w', encoding='utf-8'), indent=1)
+        print('  written')
+    return e, e0
 
 
 if __name__ == '__main__':
