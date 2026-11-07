@@ -2,7 +2,7 @@
 across, of a plate's height up), no two parts in one another, and none in the air (each standing
 on another or on the ground's top).  For models made by hand here (extra/).
 
-    python tools/ldraw_check.py extra/airport.ldr [--ldraw PATH] [--print]
+    python tools/ldraw_check.py extra/airport_all.ldr [--ldraw PATH] [--print]
 
 Parts' sizes come from the LDraw library's geometry (their outlines: lines of types 2 to 5, through
 their subparts).  Prints each part's box with --print."""

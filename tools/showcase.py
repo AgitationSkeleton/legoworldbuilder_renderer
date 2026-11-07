@@ -78,7 +78,7 @@ def main():
     c.save(os.path.join(OUT, 'map_sprites.png'))
     # the new units
     parts = []
-    for u, names in (('bluebird', ['right', 'left', 'up', 'down']), ('cargocopter', ['right', 'left', 'up', 'down']), ('airport', [None])):
+    for u, names in (('bluebird', ['right', 'left', 'up', 'down']), ('cargocopter', ['right', 'left', 'up', 'down'])):
         sp = UNITS[u]['sprite']
         sprites = [Image.open(out(u, sp + ('.' + n if n else '') + '.png')).convert('RGBA') for n in names]
         parts.append((u, sprites, Image.open(out(u, sp + '.hero.png')).convert('RGB')))
@@ -96,6 +96,26 @@ def main():
         c.paste(hero.resize((hero.width * 2, hero.height * 2), Image.NEAREST), (x + 20, yy))
         y += max(max(i.height * S for i in s_), hero.height * 2) + 30
     c.save(os.path.join(OUT, 'new_units.png'))
+    # the Airport, our own models, beside the game's buildings each is framed as
+    cols = [('house (game)', os.path.join(HERE, 'reference', 'building.house.png'), os.path.join(HERE, 'reference', 'building.house.hero.png')),
+            ('airport', out('airport', 'building.airport.png'), out('airport', 'building.airport.hero.png')),
+            ('airport building', out('airport_building', 'building.airport_building.png'), out('airport_building', 'building.airport_building.hero.png')),
+            ('robot lab (game)', os.path.join(HERE, 'reference', 'building.robot_lab.png'), os.path.join(HERE, 'reference', 'building.robot_lab.hero.png')),
+            ('control tower', out('airport_tower', 'building.airport_tower.png'), out('airport_tower', 'building.airport_tower.hero.png'))]
+    S2 = 2
+    ims = [(n, Image.open(a).convert('RGBA'), Image.open(b).convert('RGB')) for n, a, b in cols]
+    W = sum(max(a.width * S, b.width * S2) + 14 for _, a, b in ims) + 10
+    H = max(a.height * S + b.height * S2 for _, a, b in ims) + 40
+    c = Image.new('RGB', (W, H), BG)
+    d = ImageDraw.Draw(c)
+    x = 6
+    for n, a, b in ims:
+        a3 = a.resize((a.width * S, a.height * S), Image.NEAREST)
+        c.paste(a3, (x, 16), a3)
+        c.paste(b.resize((b.width * S2, b.height * S2), Image.NEAREST), (x, 24 + a3.height))
+        label(d, (x, 2), n)
+        x += max(a3.width, b.width * S2) + 14
+    c.save(os.path.join(OUT, 'airport.png'))
     # the consistent portraits, beside the game's portrait each stands for
     from wbrender.render import consistent_like
     pairs = []

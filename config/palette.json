@@ -65,11 +65,6 @@
    244,
    58
   ],
-  "73": [
-   45,
-   153,
-   247
-  ],
   "25": [
    255,
    166,
@@ -85,16 +80,16 @@
    137,
    87
   ],
-  "72": [
-   184,
-   175,
-   174
+  "73": [
+   46,
+   121,
+   189
   ]
  },
  "light": {
-  "ambient": 0.8597790829380733,
-  "key": 2.675651717527745,
-  "fill": 2.1211719788639907,
+  "ambient": 0.7738011746442659,
+  "key": 1.3378258587638725,
+  "fill": 1.0605859894319953,
   "gamma": 0.7006591754662465,
   "highlight": 0.5694594849904686,
   "knee": 0.9798644886205228,
@@ -136,30 +131,33 @@
  "learned_later": {
   "2": true,
   "27": true,
-  "73": true,
   "25": true,
   "71": true,
   "19": true,
-  "72": true
+  "73": true
  },
  "map": [
   [
-   1.0439,
-   -0.2942,
-   -0.1174,
-   50.6471
+   1.0315,
+   -0.2801,
+   -0.063,
+   43.9914
   ],
   [
-   -0.154,
-   1.0721,
-   -0.2,
-   40.0383
+   -0.1391,
+   1.1065,
+   -0.2296,
+   31.7379
   ],
   [
-   -0.1222,
-   -0.1245,
-   1.0444,
-   31.931
+   -0.0953,
+   -0.0803,
+   0.9782,
+   22.6588
   ]
- ]
+ ],
+ "pinned": {
+  "73": "learned from the defender, the repairbot, the treebot and the crab, built in medium blue as the game has them (the LDraw map gives it too light; the marina, built otherwise, too cyan)"
+ },
+ "light_note": "key and fill halved, ambient x0.9, after the fit: the fitted light overexposed flat tops (a medium-blue top clipped to near white); measured on the defender, duck, fish, buggy, repairbot, frog, dozer, dumptruck and treebot, this brings the sprites' mean and 90th-percentile brightness to the game's (from +21 and +20 to within a few levels)"
 }

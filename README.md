@@ -36,7 +36,10 @@ lighting and the colours were all measured on the game's own sprites and portrai
   `docs/showcase/` show a few of the game's sprites and portraits beside the renders, for
   comparison.
 - The renders of JappaWakka's models in the showcase (the buggy, the dirtbuggy, the bluebird, the
-  cargo copter ...) are of their work; the airport is a model of our own (`extra/airport.ldr`).
+  cargo copter ...) are of their work.
+- **The Airport** is our own: hand-built Stud.io models (`extra/`) after the airport in LEGO set
+  4028, *World of Bricks*, the set the game's Cargo Copter comes from: the airport building, the
+  control tower and the runway lights, and the three together.
 - [ImportLDraw](https://github.com/TobyLobster/ImportLDraw) (Toby Nelson, GPL-2.0) imports the
   models into Blender; the [LDraw](https://www.ldraw.org/) parts library supplies the parts.
 - [Blender MCP](https://github.com/ahujasid/blender-mcp) (Siddharth Ahuja) lets an AI assistant
@@ -54,7 +57,7 @@ drawn by hand but rendered from 3D models and then cut out, which is what lets t
 | An **oblique** view, as the map's tiles are drawn (a tile 50 px on in its row; each row 50 px down and 25 px left): what is further north is drawn further right, and upright edges stay upright. No real camera does that. | The model is sheared (`x' = x + skew·y`) after it is turned, and shot with an orthographic camera. Blender renders a sheared parent exactly, normals and all. |
 | One model, turned a right angle per direction: **right** (east), **left** (west), **up** (north, away and to the right) and **down** (south, toward and to the left). | The turn for each direction, the camera's elevation, the skew and the size are fitted to the game's own sprites, unit by unit (`wbrender.fit`). The four turns are kept to one pattern so a unit alike from both sides isn't turned the wrong way. |
 | **No studs** on the units' bricks: the duck's top and the buggy's spoiler are flat, and so are the buildings' roofs and bases. The pickup brick piles do show studs. The portraits show studs everywhere. | Studs are left out of the map sprites (empty stud parts are found before the library's), unless a model is marked `"studs": "full"` (the piles). Portraits are rendered with studs. |
-| Strong, saturated colours, richer than LDraw's; no shadow on the ground. | Composited from light passes (each colour's id, white plastic under each light, the sky), with a palette and lights learned from the game's own sprites' pixels (`wbrender/shade.py`, `config/palette.json`). |
+| Strong, saturated colours, richer than LDraw's; no shadow on the ground. | Lit as the portraits are: each pixel's surface direction rendered, and a light rig, a palette and each unit's exposure fitted face by face on the game's own sprites (`wbrender/mapnormal.py`, `config/map_light.json`), composited in `wbrender/shade.py`. |
 | A **hard edge** (no partial transparency), whose edge pixels still carry a little of the colour the render was smoothed against: magenta, white or grass green on land, **cyan** around a unit in water. | Rendered large, shrunk by averaging, its edge smoothed against a chosen backdrop colour, then cut out at a coverage threshold (`wbrender/post.py`). |
 | A unit **in water** (`vehicle.duck.water.right` ...): the part below the waterline tinted toward the water's teal, deeper toward blue, with a cyan rim. | A waterline (a part of the model's height): below it the colour mixes toward the water's, and the edge is smoothed against cyan. For amphibious units (duck, frog, fish, gator) both sets are made. |
 
@@ -122,8 +125,8 @@ python -m wbrender.extract_reference     # the game's sprites, into reference/ (
 python -m wbrender.render duck buggy     # out/<unit>/: the sprites, compare.png, report.json
 python -m wbrender.render all
 python -m wbrender.fit crab              # fit a unit's camera to the game's sprites again
-python -m wbrender.shade fit             # the map sprites' palette and light, from the game's sprites
-python -m wbrender.shade colours         # ... and the rest of the palette, from every unit
+python -m wbrender.mapnormal fit         # the map sprites' light rig, palette and exposures
+python -m wbrender.shade colours         # the rest of the palette, from every unit
 python -m wbrender.models MY_MODEL.io --list
 python -m wbrender.herocam duck          # fit a portrait's camera (turn, elevation, lens, roll)
 python -m wbrender.heronormal rig duck --grey               # a game portrait's own rig: lights, shadows, reflections
@@ -186,6 +189,13 @@ hover over a shadow:
 
 ![The Bluebird, the Cargo Copter and the Airport](docs/showcase/new_units.png)
 
+The Airport, our own models after LEGO set 4028 (`extra/`), each framed as a building of the
+game's: all three together and the building alone as the house is, the control tower as the robot
+lab is (their map cameras, portrait cameras and portrait lighting, `like` in `config/units.json`),
+each brought to the size of its reference's sprite:
+
+![The Airport: together, the building, the control tower](docs/showcase/airport.png)
+
 The game's portraits are inconsistent: some show another build than the map's model (the buggy,
 the dirtbuggy), and the freighter's shows the tugboat. With *consistent* portraits, each is
 rendered from the map's own model instead, lit and framed as the game's portrait it stands for.
@@ -208,7 +218,7 @@ What is still off, unit by unit, is in [AUDIT.md](AUDIT.md):
 | `blender/render_cli.py` | Blender's side of a command-line job |
 | `addon/` | The Blender add-on (built with `tools/make_addon.py`) |
 | `wbrender/` | The command line: models, reference sprites, fitting, rendering, comparing |
-| `wbrender/shade.py` | The map sprites' look: light passes composited with a palette learned from the game |
+| `wbrender/shade.py`, `wbrender/mapnormal.py` | The map sprites' look: a light rig and palette fitted on the game's sprites, composited |
 | `wbrender/heronormal.py` | The portraits: lighting rigs, shadows, reflections, glass, consistent portraits |
 | `wbrender/herocam.py`, `wbrender/herofit.py` | The portraits' cameras |
 | `wbrender/posefit.py` | Posing a recreation's joints as the game's model had them |
@@ -218,7 +228,7 @@ What is still off, unit by unit, is in [AUDIT.md](AUDIT.md):
 | `config/fit/` | Each unit's fitted camera and turns |
 | `config/hero/` | Each portrait's fitted camera |
 | `config/hero_light.json` | The portraits' lighting rigs (one per game portrait, one per kind), palettes, reflections and glass |
-| `extra/airport.ldr` | Our own model: the Airport |
+| `extra/airport_*.io`, `extra/airport_*.ldr` | Our own models: the Airport after LEGO set 4028 (building, control tower, runway lights, and all three together) |
 | `tools/ldraw_check.py` | Checks a hand-made LDraw model is real LEGO: on the grid, nothing inside another, nothing in the air |
 | `docs/showcase/` | The comparison images above (`python tools/showcase.py` makes them again) |
 
@@ -227,5 +237,5 @@ Not published, and ignored by git: `models/` (JappaWakka's), `reference/` (the g
 
 ## Licence
 
-The code is under the MIT licence (`LICENSE`). It includes no models, no game data and no parts
-library.
+The code is under the MIT licence (`LICENSE`). It includes no game data, no parts library and
+none of JappaWakka's models. The only models it includes are our own Airport models in `extra/`.

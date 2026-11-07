@@ -38,7 +38,28 @@ Every well-matched unit's four map directions are turned square, within a few de
 | scorpion, crab, watercrab | 0.68 to 0.70 | (none) | Legs posed otherwise. The water crab's game sprites are a deeper blue. (2) |
 | freighter | 0.69 | 0.73 | Up and down narrow. The game's portrait is the tugboat's. (3) |
 | bluebird, cargo copter | 0.57, 0.47 | (none) | Compared against one right-facing sprite of each of unknown origin (not from the game's files). Not a measure of the renderer. |
-| windmill, airport | (none) | 0.71 | No map sprite in the game to compare. The airport is our own model. |
+| windmill | (none) | 0.71 | No map sprite in the game to compare. |
+
+## The map sprites' light
+
+The map sprites were first composited from a few Cycles sun passes with a palette learned from the
+game's sprites (`wbrender/shade.py`). That fit overexposed flat tops: a medium-blue top clipped to
+near white, and the renders ran about 21 levels brighter than the game's on average.
+
+They are now lit as the portraits are (`wbrender/mapnormal.py`): each unit's sprites are rendered from
+its fitted map camera as colour ids, the sky's light and each pixel's surface direction, laid on the
+game's sprites, and a light rig is fitted face by face over fourteen units at once, the palette
+solved alongside, every channel clipped. As with the portraits, each unit's sprites have their own
+exposure (the duck's yellow is lemon, the dump truck's ochre); a new unit takes the middle one.
+
+On the faces it was fitted on, the rig comes to an error of 26.1, against 31.6 for flat light and
+37.2 for the sprites made before. Per unit, the mean colour error against the game's sprites fell
+from 53.7 to 46.5 (duck), 69.5 to 55.4 (buggy), 112.0 to 88.0 (defender), 80.9 to 56.3 (fish) and
+81.9 to 58.6 (dump truck).
+
+Medium blue (LDraw 73) is learned from the robots built in it (the defender, repairbot, treebot,
+crab), not from the marina, whose cyan parts taught it as cyan. A colour learned late that strays
+far from what the LDraw colour map predicts is otherwise dropped as a model mismatch.
 
 ## The palette
 

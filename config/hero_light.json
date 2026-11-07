@@ -1191,6 +1191,163 @@
     "horizon": 0.534446055715158
    },
    "reflect_error": 39.01
+  },
+  "house": {
+   "colours": {
+    "0": [
+     123,
+     123,
+     123
+    ],
+    "15": [
+     166,
+     166,
+     166
+    ],
+    "4": [
+     170,
+     0,
+     0
+    ],
+    "71": [
+     115,
+     115,
+     115
+    ]
+   },
+   "light": {
+    "ambient": 0.9151700499335981,
+    "occlusion": 0.9567808334109456,
+    "gamma": 0.5159148936811787,
+    "slope": 0.0,
+    "lights": [
+     {
+      "w": 1.0,
+      "elevation": 10.0,
+      "azimuth": 150.0,
+      "shadow": true
+     },
+     {
+      "w": 0.2059126907349269,
+      "elevation": 35.0,
+      "azimuth": 0.0,
+      "shadow": false
+     },
+     {
+      "w": 0.0,
+      "elevation": 35.0,
+      "azimuth": -100.0,
+      "shadow": true
+     }
+    ]
+   },
+   "fitted_on": [
+    "house"
+   ],
+   "exposures": {
+    "house": 1.054
+   },
+   "face_error": 2.21,
+   "face_error_without_shadows": 3.72,
+   "world_scale": 0.6827309236947792,
+   "reflect": {
+    "r0": 0.0,
+    "fresnel": 1.0,
+    "part": 0.0,
+    "sky": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "ground": [
+     0.8561322951745347,
+     0.8561322951745347,
+     0.8561322951745347
+    ],
+    "horizon": 0.02
+   },
+   "reflect_error": 15.02
+  },
+  "robot_lab": {
+   "colours": {
+    "1": [
+     40,
+     48,
+     122
+    ],
+    "14": [
+     122,
+     102,
+     0
+    ],
+    "15": [
+     72,
+     72,
+     72
+    ],
+    "27": [
+     77,
+     122,
+     53
+    ],
+    "7": [
+     64,
+     64,
+     64
+    ]
+   },
+   "light": {
+    "ambient": 2.0572153346687867,
+    "occlusion": 0.5823026958963132,
+    "gamma": 0.4,
+    "slope": 0.0,
+    "lights": [
+     {
+      "w": 1.0,
+      "elevation": 20.0,
+      "azimuth": -100.0,
+      "shadow": true
+     },
+     {
+      "w": 1.8138380745978095,
+      "elevation": 50.0,
+      "azimuth": -175.0,
+      "shadow": true
+     },
+     {
+      "w": 0.0,
+      "elevation": 0.0,
+      "azimuth": 0.0,
+      "shadow": true
+     }
+    ]
+   },
+   "fitted_on": [
+    "robot_lab"
+   ],
+   "exposures": {
+    "robot_lab": 1.088
+   },
+   "face_error": 20.53,
+   "face_error_without_shadows": 35.09,
+   "world_scale": 0.49777777777777776,
+   "reflect": {
+    "r0": 0.35,
+    "fresnel": 0.0,
+    "part": 0.6889694140468753,
+    "sky": [
+     0.09805503849231362,
+     0.09805503849231362,
+     0.09805503849231362
+    ],
+    "ground": [
+     1.5774914512995644,
+     1.5774914512995644,
+     1.5774914512995644
+    ],
+    "horizon": 0.8806211216726412
+   },
+   "reflect_error": 27.51
   }
  },
  "glass": {

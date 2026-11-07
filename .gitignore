@@ -13,8 +13,9 @@ __pycache__/
 *.pyc
 dist/
 
-# (models of our own, made for this project, are published)
+# (models of our own, made for this project, are published: the Airport, Stud.io and LDraw)
 !extra/*.ldr
+!extra/*.io
 
 # (made by the renderer: stud stand-ins written beside each model)
 _nostuds/

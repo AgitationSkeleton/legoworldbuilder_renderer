@@ -25,12 +25,21 @@ from .sheet import sheet
 
 def load_fit(unit):
     p = os.path.join(ROOT, 'config', 'fit', unit + '.json')
+    # (a unit framed as another is: config/units.json 'like')
+    if not os.path.exists(p) and UNITS.get(unit, {}).get('like'):
+        p = os.path.join(ROOT, 'config', 'fit', UNITS[unit]['like'] + '.json')
     if os.path.exists(p):
         f = json.load(open(p))
         # (a direction the game has no sprite of, fitted none: turned from 'right' as the four always are)
         for d, off in (('left', 180), ('up', 90), ('down', 270)):
             if d not in f['headings'] and 'right' in f['headings']:
                 f['headings'][d] = (f['headings']['right'] + off) % 360
+        # (a model framed as another, brought to the size of that one's sprite: config/units.json 'size')
+        if UNITS.get(unit, {}).get('size') and f.get('unit') != unit:
+            f = dict(f, scale=f['scale'] * UNITS[unit]['size'])
+        # (a model built facing otherwise than the one it is framed as: config/units.json 'turn')
+        if UNITS.get(unit, {}).get('turn') and UNITS[unit].get('like') and f.get('unit') != unit:
+            f['headings'] = {d: (h + UNITS[unit]['turn']) % 360 for d, h in f['headings'].items()}
         return f
     # (no sprites to fit to: the camera all the fitted units share, their turns their median)
     fits = [json.load(open(f)) for f in glob.glob(os.path.join(ROOT, 'config', 'fit', '*.json'))]
@@ -142,6 +151,8 @@ def render_unit(unit, size=768, samples=64, out_root=None, compare=True, water_o
                 else:
                     name = '%s.%s%s%s' % (u['sprite'], prefix, d, '' if prefix else u.get('still', ''))
                 if u.get('flies'):
+                    # (lifted, its shadow not in it: the game draws that under it, one for every way it faces)
+                    regs.setdefault('_sizes', []).append(spr.size)
                     spr, reg = hover(spr, u['flies'])
                     regs[name] = reg
                 p = os.path.join(out, name + '.png')
@@ -153,6 +164,14 @@ def render_unit(unit, size=768, samples=64, out_root=None, compare=True, water_o
                     bimg, _ = shade.to_sprite(big, pal, (255, 255, 255), 0.5)
                     bimg.save(os.path.join(raw, '%s.png' % d))
     if regs:
+        sizes = regs.pop('_sizes', None)
+        if sizes:
+            # the flyer's shadow: one size and place for all its sprites -- as wide as most of its widest
+            # view, as tall as the goal's shadow is to its width (24 by 14), under where its base would
+            # stand (half its tallest view below the ground point)
+            w = max(x for x, _ in sizes)
+            sw = max(8, round(w * 0.7))
+            regs['_shadow'] = {'w': sw, 'h': max(5, round(sw * 14 / 24)), 'dy': round(max(y for _, y in sizes) / 2)}
         json.dump(regs, open(os.path.join(out, 'sprites.json'), 'w'), indent=1)
     extras = []
     if hero and not u.get('colours') and not u['sprite'].startswith('resource'):
@@ -248,8 +267,13 @@ def hero_camera(unit, consistent=False):
                 cam = dict(cam, lens=max(cam['lens'], 30.0))
             return cam
     p = os.path.join(ROOT, 'config', 'hero', unit + '.json')
+    if not os.path.exists(p) and UNITS[unit].get('like'):
+        p = os.path.join(ROOT, 'config', 'hero', UNITS[unit]['like'] + '.json')
     if os.path.exists(p) and not (consistent and UNITS[unit].get('hero_model')):
-        return json.load(open(p))
+        cam = json.load(open(p))
+        if UNITS[unit].get('turn') and cam.get('unit') != unit:
+            cam = dict(cam, heading=(cam['heading'] + UNITS[unit]['turn']) % 360)
+        return cam
     sh = json.load(open(os.path.join(ROOT, 'config', 'hero', '_shared.json')))
     from .herofit import group
     g = sh.get(group(unit)) or next(iter(sh.values()))
@@ -270,8 +294,9 @@ def render_hero(unit, out, size=640, samples=96, consistent=False):
     if os.path.exists(os.path.join(ROOT, 'config', 'hero_light.json')):
         from . import heronormal
         p = os.path.join(out, u['sprite'] + '.hero.png')
-        ref = hero_ref(unit)
-        box = Image.open(ref).size if ref and not consistent else HERO_SIZE
+        # (a new unit framed as another: in that one's portrait's box)
+        ref = hero_ref(unit) or (hero_ref(u['like']) if u.get('like') else None)
+        box = Image.open(ref).size if ref else HERO_SIZE     # (a consistent portrait too: in the box of the one it replaces)
         heronormal.portrait(unit, consistent, box, source=source).save(p)
         return p
     # (the earlier composite of light passes: wbrender/heroshade.py)
@@ -279,7 +304,7 @@ def render_hero(unit, out, size=640, samples=96, consistent=False):
         from . import heroshade
         p = os.path.join(out, u['sprite'] + '.hero.png')
         ref = hero_ref(unit)
-        box = Image.open(ref).size if ref and not consistent else HERO_SIZE
+        box = Image.open(ref).size if ref else HERO_SIZE     # (a consistent portrait too: in the box of the one it replaces)
         s = heroshade.boxed(heroshade.render(source, consistent=consistent), box)
         heroshade.picture(s, heroshade.palette(), box).save(p)
         return p
@@ -299,7 +324,7 @@ def render_hero(unit, out, size=640, samples=96, consistent=False):
     blender.run({'model': model, 'mode': 'final', 'size': size, 'samples': samples, 'params': look, 'studs': S.get('hero_studs', 'full'),
                  'shots': [{'path': raw, 'heading': cam['heading']}]})
     ref = hero_ref(unit)
-    box = Image.open(ref).size if ref and not consistent else HERO_SIZE
+    box = Image.open(ref).size if ref else HERO_SIZE     # (a consistent portrait too: in the box of the one it replaces)
     im = on_white(Image.open(raw), box)
     p = os.path.join(out, u['sprite'] + '.hero.png')
     im.save(p)
@@ -328,21 +353,14 @@ def render_plan(unit, out, raws):
 
 
 def hover(spr, lift):
-    """A flyer's sprite: the unit lifted by lift pixels over a dithered shadow (a checkerboard of
-    black, the period's way of half a shade), the registration point where the ground is."""
+    """A flyer's sprite: the unit lifted by lift pixels, the registration point where the ground under
+    it is (its middle, as a standing unit's, lift lower). Its shadow is not in it: the online game
+    draws that apart (sprites.json '_shadow'), the same under every way it faces, and sways the unit
+    over it as the game's goal arrow sways."""
     a = np.asarray(spr.convert('RGBA'))
     h, w = a.shape[:2]
-    sh_h = max(3, round(w * 0.22))
-    out = np.zeros((h + lift + sh_h // 2, w, 4), np.uint8)
-    # (the shadow: an ellipse as wide as the unit's footprint, under where it was standing)
-    cy, cx = h + lift - 1, (w - 1) / 2
-    yy, xx = np.mgrid[0:out.shape[0], 0:w]
-    ell = ((xx - cx) / (w * 0.42)) ** 2 + ((yy - cy) / (sh_h / 2)) ** 2 <= 1
-    out[ell & ((xx + yy) % 2 == 0)] = (0, 0, 0, 255)
-    keep = a[..., 3] > 0
-    out[:h][keep] = a[keep]
-    # (the ground under the unit, as its own sprite's middle was: the unit stands lift higher)
-    return Image.fromarray(out, 'RGBA'), {'regX': w // 2, 'regY': h // 2 + lift}
+    return Image.fromarray(a, 'RGBA'), {'regX': w // 2, 'regY': h // 2 + lift}
+
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)

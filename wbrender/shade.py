@@ -51,7 +51,7 @@ def render_passes(unit, dirs, size=320, samples=24, studs=None, recolour=None, w
     os.makedirs(work, exist_ok=True)
     passes = [('k%d' % i, {'elevation': e, 'azimuth': a, 'strength': 1}) for i, (e, a) in enumerate(KEYS)]
     passes += [('fill', dict(FILL, strength=1)), ('ambient', None)]
-    params = {'elevation': fit['elevation'], 'skew': fit.get('skew', 0.0), 'passes': passes}
+    params = {'elevation': fit['elevation'], 'skew': fit.get('skew', 0.0), 'passes': passes, 'normal_pass': True}
     if recolour:
         params['recolour'] = recolour
     shots = [{'path': os.path.join(work, d), 'heading': fit['headings'][d]} for d in dirs]
@@ -78,6 +78,12 @@ def render_passes(unit, dirs, size=320, samples=24, studs=None, recolour=None, w
         # both brought to 1, so that the lights' weights say how strong each is against the other)
         out[d] = {'codes': codes, 'legend': {v['code']: v['rgb'] for v in legend.values()}, 'alpha': A[..., 3],
                   'A': A[..., 0] / 0.8, 'F': F[..., 0] * np.pi / 0.8, 'K': [k[..., 0] * np.pi / 0.8 for k in K], 'H': H}
+        out[d]['unit'] = unit
+        if os.path.exists(base + '.normal.png'):
+            # (each pixel's surface direction, the camera's frame, +z towards it: for the map's light rig)
+            n = lum('normal')[..., :3] * 2 - 1
+            n[..., 2] *= -1
+            out[d]['N'] = n
     out['_ppu'] = size / ortho_size(r['radius'], fit.get('skew', 0.0))
     out['_scale'] = fit['scale']
     return out
@@ -131,7 +137,12 @@ def small(p, factor):
     F, _ = shrink_field(p['F'], p['alpha'], factor)
     K = [shrink_field(k, p['alpha'], factor)[0] for k in p['K']]
     H, _ = shrink_field(p['H'], p['alpha'], factor)
-    return {'H': H, 'codes': fill_codes(shrink_codes(p['codes'], factor), cov), 'cov': cov, 'A': A, 'F': F, 'K': K, 'legend': p['legend']}
+    out = {'H': H, 'codes': fill_codes(shrink_codes(p['codes'], factor), cov), 'cov': cov, 'A': A, 'F': F, 'K': K, 'legend': p['legend'],
+           'unit': p.get('unit')}
+    if 'N' in p:
+        n = np.stack([shrink_field(p['N'][..., i], p['alpha'], factor)[0] for i in range(3)], -1)
+        out['N'] = n / np.maximum(np.linalg.norm(n, axis=-1, keepdims=True), 1e-6)
+    return out
 
 
 # ---------- compositing ----------
@@ -148,20 +159,63 @@ def base_colour(code, legend, pal):
     return np.array(c, np.float32) / 255.0
 
 
+_MAP_RIG = {}
+
+
+def map_rig():
+    """config/map_light.json: the map sprites' light rig and palette (wbrender/mapnormal.py), or None."""
+    p = os.path.join(ROOT, 'config', 'map_light.json')
+    if not os.path.exists(p):
+        return None
+    t = os.path.getmtime(p)
+    if _MAP_RIG.get('t') != t:
+        _MAP_RIG.update(t=t, rig=json.load(open(p, encoding='utf-8')))
+    return _MAP_RIG['rig']
+
+
+def map_colour(code, legend, pal, M):
+    """A colour under the map's rig: fitted with it on the game's sprites, or the world palette's brought to
+    its scale (the median ratio of the colours both have)."""
+    c = M['colours'].get(code)
+    if c is not None:
+        return np.array(c, np.float32) / 255.0
+    if 'scale' not in M:
+        r = [sum(v) / max(1, sum(pal['colours'][k])) for k, v in M['colours'].items() if k in pal['colours'] and k not in ('0', '256')]
+        M['scale'] = float(np.median(r)) if r else 1.0
+    return base_colour(code, legend, pal) * M['scale']
+
+
 def composite(s, pal, light=None, water=None):
     """RGB 0..1 (H, W, 3) of a direction's small passes; in water (water: {waterline, mix, depth,
     color, deep}), what is below the line taken toward the water's colour, deeper toward its depths."""
-    L = light or pal['light']
-    K = s['K'][int(L['key_index'])]
-    v = np.maximum(0, L['ambient'] * s['A'] + L['key'] * K + L['fill'] * s['F']) ** L['gamma']
-    rgb = np.zeros(s['A'].shape + (3,), np.float32)
-    for code in np.unique(s['codes']):
-        if not code:
-            continue
-        m = s['codes'] == code
-        rgb[m] = base_colour(code, s['legend'], pal)[None, :] * v[m][:, None]
-    hl = L['highlight'] * np.clip((K - L['knee']) / max(1e-3, 1 - L['knee']), 0, None)
-    rgb = np.clip(rgb + hl[..., None], 0, 1)
+    M = map_rig() if light is None and 'N' in s else None
+    if M:
+        # the map's light rig, fitted face by face on the game's sprites (wbrender/mapnormal.py): lights
+        # from any direction on each surface's direction, the sky, a gamma, each channel clipped
+        from .heronormal import light_dir
+        R = M['light']
+        v = R['ambient'] * np.power(np.clip(s['A'], 1e-3, 1), R['occlusion'])
+        for li in R['lights']:
+            v = v + li['w'] * np.maximum(0, s['N'] @ light_dir(li['elevation'], li['azimuth']))
+        v = np.power(np.maximum(v, 1e-4), R['gamma']) * M.get('exposures', {}).get(s.get('unit'), 1.0)
+        rgb = np.zeros(s['A'].shape + (3,), np.float32)
+        for code in np.unique(s['codes']):
+            if code:
+                m = s['codes'] == code
+                rgb[m] = map_colour(code, s['legend'], pal, M)[None, :] * v[m][:, None]
+        rgb = np.clip(rgb, 0, 1)
+    else:
+        L = light or pal['light']
+        K = s['K'][int(L['key_index'])]
+        v = np.maximum(0, L['ambient'] * s['A'] + L['key'] * K + L['fill'] * s['F']) ** L['gamma']
+        rgb = np.zeros(s['A'].shape + (3,), np.float32)
+        for code in np.unique(s['codes']):
+            if not code:
+                continue
+            m = s['codes'] == code
+            rgb[m] = base_colour(code, s['legend'], pal)[None, :] * v[m][:, None]
+        hl = L['highlight'] * np.clip((K - L['knee']) / max(1e-3, 1 - L['knee']), 0, None)
+        rgb = np.clip(rgb + hl[..., None], 0, 1)
     if water:
         under = s['H'] < water['waterline']
         depth = np.clip((water['waterline'] - s['H']) / max(1e-3, water['depth']), 0, 1)[..., None]
@@ -178,6 +232,10 @@ def to_sprite(s, pal, fringe, threshold=0.5, light=None, water=None):
     keep = s['cov'] >= threshold
     a = np.zeros(rgb.shape[:2] + (4,), np.uint8)
     a[..., :3] = np.uint8(np.clip(out * 255 + 0.5, 0, 255))
+    # (no pure white: the game draws its map sprites with white as the see-through colour -- a white
+    # beak would be a hole)
+    white = (a[..., :3] >= 251).all(-1)
+    a[white, :3] = 250
     a[..., 3] = np.where(keep, 255, 0)
     ys, xs = np.nonzero(keep)
     return Image.fromarray(a[ys.min():ys.max() + 1, xs.min():xs.max() + 1], 'RGBA'), (ys.min(), xs.min())
@@ -365,6 +423,7 @@ def learn_colours(units, least_iou=0.72, least=40, size=320, samples=24):
         added[c] = [int(round(x * 255)) for x in np.clip(np.median(r, 0), 0, 1)]
     pal['colours'].update(added)
     pal.setdefault('learned_later', {}).update({c: True for c in added})
+    drop_strays(pal)
     # (LDraw's colour -> the game's, by least squares over every colour learned)
     X, Y = [], []
     for c, v in pal['colours'].items():
@@ -378,6 +437,32 @@ def learn_colours(units, least_iou=0.72, least=40, size=320, samples=24):
     json.dump(pal, open(PAL, 'w', encoding='utf-8'), indent=1)
     print('added:', added)
     return pal
+
+
+def drop_strays(pal, limit=55.0):
+    """A colour learned late (from whatever sprites happened to show it) that strays far from what
+    the map from LDraw's colours says it should be: learned off a recreation built otherwise than the
+    game's model (the marina's cyan parts, where JappaWakka built in medium blue, taught medium blue
+    as cyan), not a finding. Dropped; the map gives it."""
+    if not pal.get('map'):
+        return []
+    M = np.array(pal['map'], np.float32)
+    dropped = []
+    for c in list(pal.get('learned_later', {})):
+        if c in pal.get('pinned', {}):
+            continue
+        ld = ldraw_rgb(c)
+        v = pal['colours'].get(c)
+        if ld is None or v is None:
+            continue
+        mapped = np.clip(M[:, :3] @ np.array(ld, np.float32) + M[:, 3], 0, 255)
+        if np.abs(np.array(v, np.float32) - mapped).max() > limit:
+            del pal['colours'][c]
+            pal['learned_later'].pop(c, None)
+            dropped.append(c)
+    if dropped:
+        print('dropped as strays (the map gives them):', dropped)
+    return dropped
 
 
 def ldraw_rgb(code):

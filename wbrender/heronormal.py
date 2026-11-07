@@ -128,6 +128,10 @@ def settings(unit=None, rig_from=None):
                 Wp = world()['colours']
                 P['colours'] = {}
                 for c, v in lender.get('colours', {}).items():
+                    # (not black and the greys: the references' are unreliable -- built otherwise than the
+                    # game's, or fitted on a few dark pixels: the tugboat's black is 2,2,2)
+                    if c in DISTRUST:
+                        continue
                     w_ = Wp.get(c)
                     if w_ is not None and c not in DISTRUST:
                         ratio = (sum(v) + 1) / (sum(w_) * (P['world_scale'] or 1.0) + 1)
@@ -806,7 +810,7 @@ def portrait(unit, consistent=False, box=None, source=None):
     from .render import HERO_SIZE
     source = source or unit
     ref = hero_ref(unit)
-    box = box or (Image.open(ref).size if ref and not consistent else HERO_SIZE)
+    box = box or (Image.open(ref).size if ref else HERO_SIZE)     # (a consistent one too: the box of the one it replaces)
     if consistent:
         # (lit as the game's portrait it stands for: its rig, its exposure)
         from .render import consistent_like
@@ -1397,7 +1401,9 @@ def reflect_rig(unit, steps=3000, seed=11, grey=False):
         L = dict(Pu['light'])
         L['ambient'], L['occlusion'], L['gamma'], L['slope'] = float(max(x[0], 0.01)), float(np.clip(x[1], 0, 2)), float(np.clip(x[2], 0.4, 2.5)), float(np.clip(x[3], 0, 0.8))
         L['lights'] = [dict(li, w=float(max(x[4 + i], 0)) if i else 1.0) for i, li in enumerate(rig['light']['lights'])]
-        R = {'r0': float(np.clip(x[7], 0, 0.8)), 'fresnel': float(np.clip(x[8], 0, 1)), 'part': float(np.clip(x[9], 0, 2)),
+        # (no more than a third mirror face on: more is the fit making up for a build's differences -- the
+        # robot lab's went to 0.8, and lent to another model turned its white to white on white)
+        R = {'r0': float(np.clip(x[7], 0, 0.35)), 'fresnel': float(np.clip(x[8], 0, 1)), 'part': float(np.clip(x[9], 0, 2)),
              'sky': [float(np.clip(v, 0, 1.6)) for v in x[10:13]], 'ground': [float(np.clip(v, 0, 1.6)) for v in x[13:16]],
              'horizon': float(np.clip(x[16], 0.02, 1.5))}
         if grey:
