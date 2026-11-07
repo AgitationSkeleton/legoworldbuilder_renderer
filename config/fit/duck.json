@@ -1,0 +1,19 @@
+{
+ "unit": "duck",
+ "elevation": 30.0,
+ "skew": 0.3,
+ "scale": 758.587,
+ "radius": 0.041753563948596015,
+ "headings": {
+  "right": 98,
+  "left": 261,
+  "up": 182,
+  "down": 2
+ },
+ "iou": {
+  "right": 0.9383,
+  "left": 0.8909,
+  "up": 0.9308,
+  "down": 0.9829
+ }
+}

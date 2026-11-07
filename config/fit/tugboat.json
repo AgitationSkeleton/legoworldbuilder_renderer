@@ -1,0 +1,19 @@
+{
+ "unit": "tugboat",
+ "elevation": 42.5,
+ "skew": 0.3,
+ "scale": 1340.733,
+ "radius": 0.043817812847610584,
+ "headings": {
+  "right": 90,
+  "left": 270,
+  "up": 175,
+  "down": 355
+ },
+ "iou": {
+  "right": 0.9407,
+  "left": 0.9475,
+  "up": 0.8195,
+  "down": 0.8095
+ }
+}

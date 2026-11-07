@@ -1,0 +1,308 @@
+{
+ "_about": "Each unit: the submodel of JappaWakka's recreations it is rendered from (model), the game's sprite name (sprite), the suffix of its standing sprite per direction (still), and where it can be: land, water or both (amphibious units also get partly submerged .water. sprites). studs: 'none' (the default: the game's units have flat-topped bricks) or 'full' (its pickup brick piles show their studs; the buildings' map sprites do not, their portraits do). single: one sprite, not four directions (the pickups); colours: rendered once per colour, the model's yellow (LDraw 14) recoloured to each LDraw colour, {colour} in the sprite name. hero_model: the info panel's portrait is of another build than the map's (the game's own inconsistency: JappaWakka modelled it too); hero_as: the game reuses another unit's portrait. Rendering with --consistent-heroes makes every portrait from the map's model instead. model_file: a model of this project's own (extra/), not JappaWakka's. flies: the unit hovers this many pixels over its tile on the map, a dithered shadow under it (its sprite's registration point says where the ground is: out/<unit>/sprites.json). replace_parts: parts of the model's own (its top level) swapped for others, where the recreation takes a liberty with the game's build (the Gas Station's and Marina's tiled bases are studded plates in the game). hero_rig_from: a unit with no portrait in the game lit as the portrait of this one is (wbrender/heronormal.py).",
+ "buggy": {
+  "model": "Buggy_Sprite",
+  "sprite": "vehicle.buggy",
+  "on": "land",
+  "hero_model": "Buggy_Info"
+ },
+ "dirtbuggy": {
+  "model": "DirtBuggy_Sprite",
+  "sprite": "vehicle.dirtbuggy",
+  "on": "land",
+  "hero_model": "Dirtbuggy_Info"
+ },
+ "forklift": {
+  "model": "Forklift",
+  "sprite": "vehicle.forklift",
+  "on": "land"
+ },
+ "steamshovel": {
+  "model": "Steamshovel",
+  "sprite": "vehicle.steamshovel",
+  "on": "land"
+ },
+ "dozer": {
+  "model": "Dozer",
+  "sprite": "vehicle.dozer",
+  "on": "land"
+ },
+ "dumptruck": {
+  "model": "Dumptruck",
+  "sprite": "vehicle.dumptruck",
+  "on": "land"
+ },
+ "speedboat": {
+  "model": "Speedboat",
+  "sprite": "vehicle.speedboat",
+  "on": "water"
+ },
+ "tugboat": {
+  "model": "Tugboat",
+  "sprite": "vehicle.tugboat",
+  "on": "water"
+ },
+ "freighter": {
+  "model": "Freighter",
+  "sprite": "vehicle.freighter",
+  "on": "water",
+  "hero_as": "tugboat"
+ },
+ "fish": {
+  "model": "Fish",
+  "sprite": "vehicle.fish",
+  "on": "both"
+ },
+ "frog": {
+  "model": "Frog (Idle)",
+  "sprite": "vehicle.frog",
+  "on": "both"
+ },
+ "duck": {
+  "model": "Duck",
+  "sprite": "vehicle.duck",
+  "on": "both"
+ },
+ "snail": {
+  "model": "Snail",
+  "sprite": "vehicle.snail",
+  "on": "land"
+ },
+ "repairbot": {
+  "model": "Repairbot",
+  "sprite": "vehicle.repairBot",
+  "on": "land"
+ },
+ "treebot": {
+  "model": "Treebot",
+  "sprite": "vehicle.treebot",
+  "on": "land"
+ },
+ "defender": {
+  "model": "Defender",
+  "sprite": "vehicle.defender",
+  "on": "land"
+ },
+ "freezebot": {
+  "model": "Freezebot",
+  "sprite": "vehicle.freezebot",
+  "on": "land",
+  "still": ".stand",
+  "pose": [
+   {
+    "match": "freezebot_gun",
+    "axis": "y",
+    "angle": 75.0
+   }
+  ]
+ },
+ "bluebird": {
+  "model": "Bluebird (Cut Content)",
+  "sprite": "vehicle.bluebird",
+  "on": "land",
+  "unused": true,
+  "flies": 8,
+  "hero_rig_from": "duck"
+ },
+ "cargocopter": {
+  "model": "Cargo Copter (Cut Content)",
+  "sprite": "vehicle.cargo_copter",
+  "on": "land",
+  "unused": true,
+  "flies": 10,
+  "hero_rig_from": "buggy"
+ },
+ "crab": {
+  "model": "Crab",
+  "sprite": "monster.crab",
+  "on": "land"
+ },
+ "watercrab": {
+  "model": "Water Crab",
+  "sprite": "monster.water_crab",
+  "on": "water"
+ },
+ "gator": {
+  "model": "Alligator (Original)",
+  "sprite": "monster.gator",
+  "on": "both"
+ },
+ "scorpion": {
+  "model": "Scorpion",
+  "sprite": "monster.scorpion",
+  "on": "land"
+ },
+ "trex": {
+  "model": "Tyrannosaurus Rex",
+  "sprite": "monster.trex",
+  "on": "land"
+ },
+ "shark": {
+  "model": "Shark",
+  "sprite": "monster.shark",
+  "on": "water"
+ },
+ "lion": {
+  "model": "Lion",
+  "sprite": "monster.lion",
+  "on": "land"
+ },
+ "pile1": {
+  "model": "1 - 4 Bricks",
+  "sprite": "resource.{colour}.1",
+  "on": "land",
+  "studs": "full",
+  "single": true,
+  "colours": {
+   "red": "4",
+   "yellow": "14",
+   "green": "2",
+   "blue": "1",
+   "white": "15"
+  }
+ },
+ "pile2": {
+  "model": "5 - 9 Bricks",
+  "sprite": "resource.{colour}.2",
+  "on": "land",
+  "studs": "full",
+  "single": true,
+  "colours": {
+   "red": "4",
+   "yellow": "14",
+   "green": "2",
+   "blue": "1",
+   "white": "15"
+  }
+ },
+ "pile3": {
+  "model": "10 - 14 Bricks",
+  "sprite": "resource.{colour}.3",
+  "on": "land",
+  "studs": "full",
+  "single": true,
+  "colours": {
+   "red": "4",
+   "yellow": "14",
+   "green": "2",
+   "blue": "1",
+   "white": "15"
+  }
+ },
+ "pile4": {
+  "model": "15+ Bricks",
+  "sprite": "resource.{colour}.4",
+  "on": "land",
+  "studs": "full",
+  "single": true,
+  "colours": {
+   "red": "4",
+   "yellow": "14",
+   "green": "2",
+   "blue": "1",
+   "white": "15"
+  }
+ },
+ "wheel": {
+  "model": "1 Wheel",
+  "sprite": "resource.wheel",
+  "on": "land",
+  "studs": "full",
+  "single": true
+ },
+ "battery": {
+  "model": "Battery_Full",
+  "sprite": "resource.energy",
+  "on": "land",
+  "studs": "full",
+  "single": true
+ },
+ "house": {
+  "model": "House",
+  "sprite": "building.house",
+  "on": "land",
+  "single": true
+ },
+ "windmill": {
+  "model": "Windmill",
+  "sprite": "building.windmill",
+  "on": "land",
+  "single": true
+ },
+ "nursery": {
+  "model": "Nursery",
+  "sprite": "building.nursery",
+  "on": "land",
+  "single": true
+ },
+ "factory": {
+  "model": "Factory",
+  "sprite": "building.factory",
+  "on": "land",
+  "single": true
+ },
+ "garage": {
+  "model": "Garage",
+  "sprite": "building.garage",
+  "on": "land",
+  "single": true
+ },
+ "robot_lab": {
+  "model": "Robot Lab",
+  "sprite": "building.robot_lab",
+  "on": "land",
+  "single": true,
+  "pose": [
+   {
+    "match": [
+     "2460",
+     "2444",
+     "3666",
+     "3021",
+     "4740"
+    ],
+    "axis": "y",
+    "angle": -45.0,
+    "pivot": [
+     -20.0,
+     -144.0,
+     0.0
+    ]
+   }
+  ]
+ },
+ "guard_tower": {
+  "model": "Guard Tower",
+  "sprite": "building.guard_tower",
+  "on": "land",
+  "single": true
+ },
+ "gas_station": {
+  "model": "Gas Station",
+  "sprite": "building.gas_station",
+  "on": "land",
+  "single": true,
+  "replace_parts": {
+   "3068a.dat": "3022.dat",
+   "3069a.dat": "3023.dat"
+  }
+ },
+ "marina": {
+  "model": "Marina",
+  "sprite": "building.marina",
+  "on": "water",
+  "single": true,
+  "replace_parts": {
+   "3068a.dat": "3022.dat",
+   "3069a.dat": "3023.dat"
+  }
+ },
+ "airport": {
+  "model": "airport",
+  "model_file": "extra/airport.ldr",
+  "sprite": "building.airport",
+  "on": "land",
+  "single": true,
+  "unused": true
+ }
+}

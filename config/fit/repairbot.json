@@ -1,0 +1,19 @@
+{
+ "unit": "repairbot",
+ "elevation": 17.5,
+ "skew": 0.14,
+ "scale": 1127.0918,
+ "radius": 0.045837323294113,
+ "headings": {
+  "right": 103,
+  "left": 283,
+  "up": 190,
+  "down": 2
+ },
+ "iou": {
+  "right": 0.743,
+  "left": 0.7485,
+  "up": 0.7583,
+  "down": 0.7192
+ }
+}

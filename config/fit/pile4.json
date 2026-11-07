@@ -1,0 +1,13 @@
+{
+ "unit": "pile4",
+ "elevation": 32.5,
+ "skew": 0.07,
+ "scale": 923.567,
+ "radius": 0.06520858636090716,
+ "headings": {
+  "right": 186
+ },
+ "iou": {
+  "right": 0.8464
+ }
+}

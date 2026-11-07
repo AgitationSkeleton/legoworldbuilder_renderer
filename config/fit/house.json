@@ -1,0 +1,13 @@
+{
+ "unit": "house",
+ "elevation": 20.0,
+ "skew": 0.15,
+ "scale": 416.779,
+ "radius": 0.16199593567726087,
+ "headings": {
+  "right": 4
+ },
+ "iou": {
+  "right": 0.9575
+ }
+}

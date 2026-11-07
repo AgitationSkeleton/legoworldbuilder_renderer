@@ -1,0 +1,13 @@
+{
+ "unit": "bluebird",
+ "elevation": 37.5,
+ "skew": 0.22,
+ "scale": 1070.1014,
+ "radius": 0.03378994067517235,
+ "headings": {
+  "right": 88
+ },
+ "iou": {
+  "right": 0.94
+ }
+}

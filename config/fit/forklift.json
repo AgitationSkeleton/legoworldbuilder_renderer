@@ -1,0 +1,19 @@
+{
+ "unit": "forklift",
+ "elevation": 35.0,
+ "skew": 0.3,
+ "scale": 650.0399,
+ "radius": 0.08990767267773546,
+ "headings": {
+  "right": 91,
+  "left": 272,
+  "up": 183,
+  "down": 0
+ },
+ "iou": {
+  "right": 0.9026,
+  "left": 0.8769,
+  "up": 0.8993,
+  "down": 0.9224
+ }
+}

@@ -1,0 +1,10 @@
+{
+ "unit": "forklift",
+ "heading": 320.0,
+ "elevation": 10.0,
+ "lens": 19.1,
+ "score": 0.675,
+ "model": "Forklift",
+ "roll": -2.0,
+ "inside_error": 54.65
+}

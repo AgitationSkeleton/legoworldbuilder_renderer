@@ -1,0 +1,47 @@
+{
+ "_about": "The look of the game's sprites (tuned against them: python -m wbrender.render, its compare.png and report.json). look: the Blender scene's (blender/wbsprite.py DEFAULTS); fringe: the colour a land sprite's edges are smoothed against; threshold: how much of a pixel the model must cover to be drawn; water: the partly submerged look of a unit on water.",
+ "look": {
+  "key": {
+   "elevation": 60.703904112854,
+   "azimuth": -48.500049304923564,
+   "strength": 3.310797154204943
+  },
+  "fill": {
+   "elevation": 20.0,
+   "azimuth": 109.3143717475414,
+   "strength": 1.0316605256345386
+  },
+  "ambient": 0.324,
+  "saturation": 1.368,
+  "roughness": 0.974,
+  "specular": 0.043
+ },
+ "fringe": [
+  40,
+  40,
+  38
+ ],
+ "threshold": 0.55,
+ "water": {
+  "waterline": 0.338,
+  "color": [
+   0.009,
+   0.769,
+   0.589
+  ],
+  "deep": [
+   0.158,
+   0.864,
+   0.91
+  ],
+  "mix": 0.586,
+  "depth": 0.483,
+  "fringe": [
+   12,
+   199,
+   248
+  ]
+ },
+ "studs": "none",
+ "gamma": 0.8
+}

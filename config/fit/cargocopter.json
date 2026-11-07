@@ -1,0 +1,13 @@
+{
+ "unit": "cargocopter",
+ "elevation": 32.5,
+ "skew": 0.3,
+ "scale": 866.072,
+ "radius": 0.058836725726012416,
+ "headings": {
+  "right": 90
+ },
+ "iou": {
+  "right": 0.9326
+ }
+}

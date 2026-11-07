@@ -1,0 +1,13 @@
+{
+ "unit": "guard_tower",
+ "elevation": 42.5,
+ "skew": 0.45,
+ "scale": 1719.5423,
+ "radius": 0.03950169690524115,
+ "headings": {
+  "right": 279
+ },
+ "iou": {
+  "right": 0.8465
+ }
+}

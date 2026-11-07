@@ -1,0 +1,13 @@
+{
+ "unit": "nursery",
+ "elevation": 42.5,
+ "skew": 0.07,
+ "scale": 495.2294,
+ "radius": 0.1315708276393594,
+ "headings": {
+  "right": 1
+ },
+ "iou": {
+  "right": 0.9415
+ }
+}

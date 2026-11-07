@@ -1,0 +1,13 @@
+{
+ "unit": "marina",
+ "elevation": 22.5,
+ "skew": 0.3,
+ "scale": 1386.7624,
+ "radius": 0.04889826148155811,
+ "headings": {
+  "right": 182
+ },
+ "iou": {
+  "right": 0.8903
+ }
+}

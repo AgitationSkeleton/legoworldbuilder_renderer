@@ -1,0 +1,19 @@
+{
+ "unit": "speedboat",
+ "elevation": 35.0,
+ "skew": 0.3,
+ "scale": 1032.569,
+ "radius": 0.06655165849153288,
+ "headings": {
+  "right": 90,
+  "left": 270,
+  "up": 181,
+  "down": 1
+ },
+ "iou": {
+  "right": 0.932,
+  "left": 0.9317,
+  "up": 0.9028,
+  "down": 0.8827
+ }
+}

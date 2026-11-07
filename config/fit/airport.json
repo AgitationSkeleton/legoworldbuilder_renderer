@@ -1,0 +1,11 @@
+{
+ "elevation": 27.5,
+ "skew": 0.22499999999999998,
+ "scale": 788.9331999999999,
+ "headings": {
+  "right": 180
+ },
+ "guessed": true,
+ "unit": "airport",
+ "note": "not fitted (no game sprite): the buildings' median camera, turned so the front (the terminal's windows) faces as the other buildings' do -- our model is built facing the other way from JappaWakka's buildings, as its portrait camera also has it"
+}

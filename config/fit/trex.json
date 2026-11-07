@@ -1,0 +1,19 @@
+{
+ "unit": "trex",
+ "elevation": 32.5,
+ "skew": 0.15,
+ "scale": 602.744,
+ "radius": 0.27204727873271867,
+ "headings": {
+  "right": 72,
+  "left": 233,
+  "up": 183,
+  "down": 309
+ },
+ "iou": {
+  "right": 0.3301,
+  "left": 0.629,
+  "up": 0.5439,
+  "down": 0.2957
+ }
+}

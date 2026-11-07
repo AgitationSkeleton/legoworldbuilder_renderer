@@ -1,0 +1,19 @@
+{
+ "unit": "scorpion",
+ "elevation": 22.5,
+ "skew": 0.15,
+ "scale": 974.1859,
+ "radius": 0.08841725434245765,
+ "headings": {
+  "right": 88,
+  "left": 279,
+  "up": 177,
+  "down": 355
+ },
+ "iou": {
+  "right": 0.7285,
+  "left": 0.6913,
+  "up": 0.7964,
+  "down": 0.7613
+ }
+}

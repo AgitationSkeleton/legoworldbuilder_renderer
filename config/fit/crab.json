@@ -1,0 +1,19 @@
+{
+ "unit": "crab",
+ "elevation": 22.5,
+ "skew": 0.15,
+ "scale": 538.5433,
+ "radius": 0.14048506600823932,
+ "headings": {
+  "right": 89,
+  "left": 268,
+  "up": 178,
+  "down": 2
+ },
+ "iou": {
+  "right": 0.7622,
+  "left": 0.7998,
+  "up": 0.7226,
+  "down": 0.7596
+ }
+}

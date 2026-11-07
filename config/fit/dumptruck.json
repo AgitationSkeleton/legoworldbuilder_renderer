@@ -1,0 +1,19 @@
+{
+ "unit": "dumptruck",
+ "elevation": 32.5,
+ "skew": 0.22,
+ "scale": 947.639,
+ "radius": 0.05026679347400368,
+ "headings": {
+  "right": 85,
+  "left": 269,
+  "up": 177,
+  "down": 358
+ },
+ "iou": {
+  "right": 0.911,
+  "left": 0.9366,
+  "up": 0.9571,
+  "down": 0.919
+ }
+}

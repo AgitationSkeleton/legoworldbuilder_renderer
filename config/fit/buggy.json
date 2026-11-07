@@ -1,0 +1,19 @@
+{
+ "unit": "buggy",
+ "elevation": 35.0,
+ "skew": 0.22,
+ "scale": 776.5025,
+ "radius": 0.05827969538386439,
+ "headings": {
+  "right": 88,
+  "left": 268,
+  "up": 176,
+  "down": 357
+ },
+ "iou": {
+  "right": 0.9237,
+  "left": 0.9452,
+  "up": 0.9296,
+  "down": 0.9451
+ }
+}

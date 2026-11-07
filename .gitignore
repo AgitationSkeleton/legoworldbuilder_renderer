@@ -1,0 +1,20 @@
+# Never published: the game's own art, JappaWakka's models, renders and local paths
+reference/
+models/
+out/
+work/
+*.io
+*.ldr
+*.mpd
+*.blend
+*.blend1
+local.json
+__pycache__/
+*.pyc
+dist/
+
+# (models of our own, made for this project, are published)
+!extra/*.ldr
+
+# (made by the renderer: stud stand-ins written beside each model)
+_nostuds/

@@ -1,0 +1,15 @@
+{
+ "unit": "fish",
+ "elevation": 42.5,
+ "skew": 0.23,
+ "scale": 811.8104,
+ "radius": 0.05312033675085556,
+ "headings": {
+  "right": 89,
+  "left": 271
+ },
+ "iou": {
+  "right": 0.9336,
+  "left": 0.9213
+ }
+}

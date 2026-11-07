@@ -1,0 +1,19 @@
+{
+ "unit": "freezebot",
+ "elevation": 20.0,
+ "skew": 0.5,
+ "scale": 651.35,
+ "radius": 0.09458463275795971,
+ "headings": {
+  "right": 90,
+  "left": 270,
+  "up": 180,
+  "down": 0
+ },
+ "iou": {
+  "right": 0.489,
+  "left": 0.4322,
+  "up": 0.4286,
+  "down": 0.3942
+ }
+}

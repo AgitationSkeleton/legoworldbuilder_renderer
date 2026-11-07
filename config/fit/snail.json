@@ -1,0 +1,19 @@
+{
+ "unit": "snail",
+ "elevation": 30.0,
+ "skew": 0.3,
+ "scale": 859.616,
+ "radius": 0.02728269484218402,
+ "headings": {
+  "right": 94,
+  "left": 271,
+  "up": 181,
+  "down": 2
+ },
+ "iou": {
+  "right": 0.908,
+  "left": 0.8615,
+  "up": 0.8614,
+  "down": 0.9427
+ }
+}

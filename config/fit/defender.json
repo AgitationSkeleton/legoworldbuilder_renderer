@@ -1,0 +1,19 @@
+{
+ "unit": "defender",
+ "elevation": 27.5,
+ "skew": 0.37,
+ "scale": 964.9838,
+ "radius": 0.1051983092380877,
+ "headings": {
+  "right": 105,
+  "left": 266,
+  "up": 182,
+  "down": 348
+ },
+ "iou": {
+  "right": 0.7345,
+  "left": 0.7556,
+  "up": 0.7587,
+  "down": 0.7017
+ }
+}

@@ -1,0 +1,19 @@
+{
+ "unit": "shark",
+ "elevation": 17.5,
+ "skew": 0.22,
+ "scale": 646.0466,
+ "radius": 0.1870134953646022,
+ "headings": {
+  "right": 84,
+  "left": 279,
+  "up": 191,
+  "down": 10
+ },
+ "iou": {
+  "right": 0.7295,
+  "left": 0.6952,
+  "up": 0.5094,
+  "down": 0.545
+ }
+}

@@ -1,0 +1,19 @@
+{
+ "unit": "treebot",
+ "elevation": 15.0,
+ "skew": 0.07,
+ "scale": 643.8668,
+ "radius": 0.13492968410623138,
+ "headings": {
+  "right": 88,
+  "left": 276,
+  "up": 179,
+  "down": 10
+ },
+ "iou": {
+  "right": 0.6799,
+  "left": 0.6745,
+  "up": 0.7416,
+  "down": 0.7385
+ }
+}

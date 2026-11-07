@@ -1,0 +1,13 @@
+{
+ "unit": "battery",
+ "elevation": 27.5,
+ "skew": 0.45,
+ "scale": 1195.8429,
+ "radius": 0.01591979845258545,
+ "headings": {
+  "right": 21
+ },
+ "iou": {
+  "right": 0.8884
+ }
+}

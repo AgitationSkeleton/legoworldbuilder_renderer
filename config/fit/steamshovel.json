@@ -1,0 +1,19 @@
+{
+ "unit": "steamshovel",
+ "elevation": 20.0,
+ "skew": 0.07,
+ "scale": 617.761,
+ "radius": 0.1073001426500503,
+ "headings": {
+  "right": 80,
+  "left": 272,
+  "up": 172,
+  "down": 1
+ },
+ "iou": {
+  "right": 0.77,
+  "left": 0.7117,
+  "up": 0.8272,
+  "down": 0.8463
+ }
+}

@@ -1,0 +1,13 @@
+{
+ "unit": "wheel",
+ "elevation": 42.5,
+ "skew": 0.53,
+ "scale": 1220.209,
+ "radius": 0.02273412178049488,
+ "headings": {
+  "right": 206
+ },
+ "iou": {
+  "right": 0.7775
+ }
+}

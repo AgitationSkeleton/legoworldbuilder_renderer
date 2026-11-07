@@ -1,0 +1,13 @@
+{
+ "unit": "garage",
+ "elevation": 22.5,
+ "skew": 0.15,
+ "scale": 380.657,
+ "radius": 0.14361207165436304,
+ "headings": {
+  "right": 359
+ },
+ "iou": {
+  "right": 0.9124
+ }
+}

@@ -1,0 +1,7 @@
+{
+ "blender": "C:/path/to/blender-4.2/blender.exe",
+ "ldraw": "C:/path/to/ldraw",
+ "importer": "C:/path/to/ImportLDraw",
+ "port": "C:/path/to/lego-worldbuilder-html5",
+ "recreations": "C:/path/to/Lego World Builder Recreations"
+}

@@ -1,0 +1,19 @@
+{
+ "unit": "frog",
+ "elevation": 20.0,
+ "skew": 0.15,
+ "scale": 1405.1877,
+ "radius": 0.02464474827922086,
+ "headings": {
+  "right": 87,
+  "left": 267,
+  "up": 178,
+  "down": 359
+ },
+ "iou": {
+  "right": 0.9152,
+  "left": 0.9168,
+  "up": 0.9032,
+  "down": 0.9105
+ }
+}

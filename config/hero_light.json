@@ -1,0 +1,1000 @@
+{
+ "colours": {
+  "0": [
+   263,
+   263,
+   263
+  ],
+  "14": [
+   375,
+   282,
+   20
+  ],
+  "15": [
+   177,
+   177,
+   177
+  ],
+  "256": [
+   76,
+   76,
+   76
+  ],
+  "4": [
+   216,
+   23,
+   15
+  ],
+  "7": [
+   196,
+   196,
+   196
+  ],
+  "8": [
+   164,
+   164,
+   164
+  ]
+ },
+ "light": {
+  "ambient": 0.6739160381959571,
+  "occlusion": 1.6206788015607227,
+  "gamma": 1.0563813554317336,
+  "shine": 0.0,
+  "power": 20.0,
+  "opacity": 0.45,
+  "lights": [
+   {
+    "w": 1.0,
+    "elevation": -4.94520689756179,
+    "azimuth": -128.9238138050166
+   },
+   {
+    "w": 1.1571761257759832,
+    "elevation": 1.9137331504150308,
+    "azimuth": -156.02702597257002
+   },
+   {
+    "w": 0.6536657508689261,
+    "elevation": 26.47258564938052,
+    "azimuth": 134.32462184166707
+   }
+  ],
+  "rim": 0.6,
+  "rim_power": 3,
+  "rim_rubber": true,
+  "slope": 0.2031088633340066,
+  "jpeg": 40,
+  "seams": 0.0,
+  "blur": 0.0,
+  "rubber_shine": 1.5,
+  "rubber_power": 80,
+  "rubber_light": {
+   "elevation": 20,
+   "azimuth": -100
+  }
+ },
+ "fitted_on": [
+  "duck",
+  "buggy",
+  "dirtbuggy"
+ ],
+ "exposures": {
+  "duck": 1.028,
+  "buggy": 1.218,
+  "dirtbuggy": 0.799
+ },
+ "face_error": 15.37,
+ "light_notes": "rubber highlight light chosen by eye against the buggy and dirtbuggy (heronormal.finish matches its statistics but not where the highlights fall)",
+ "world_scale": 1.3734939759036144,
+ "groups": {
+  "vehicle": {
+   "colours": {
+    "0": [
+     109,
+     109,
+     109
+    ],
+    "14": [
+     233,
+     180,
+     21
+    ],
+    "15": [
+     150,
+     150,
+     150
+    ],
+    "256": [
+     68,
+     68,
+     68
+    ],
+    "4": [
+     181,
+     11,
+     16
+    ],
+    "7": [
+     166,
+     166,
+     166
+    ],
+    "8": [
+     142,
+     142,
+     142
+    ]
+   },
+   "light": {
+    "ambient": 0.6330854023062379,
+    "occlusion": 0.3395492507500027,
+    "gamma": 0.9650767626130708,
+    "slope": 0.17131543124538842,
+    "lights": [
+     {
+      "w": 1.0,
+      "elevation": 10.0,
+      "azimuth": -175.0,
+      "shadow": true
+     },
+     {
+      "w": 0.7580373911362795,
+      "elevation": 0.0,
+      "azimuth": 100.0,
+      "shadow": true
+     },
+     {
+      "w": 0.0,
+      "elevation": 35.0,
+      "azimuth": 175.0,
+      "shadow": true
+     }
+    ]
+   },
+   "fitted_on": [
+    "buggy",
+    "dirtbuggy",
+    "dozer",
+    "dumptruck"
+   ],
+   "exposures": {
+    "buggy": 1.321,
+    "dirtbuggy": 0.882,
+    "dozer": 0.939,
+    "dumptruck": 0.913
+   },
+   "face_error": 18.88,
+   "face_error_without_shadows": 20.47,
+   "world_scale": 0.9644444444444444
+  },
+  "animal": {
+   "colours": {
+    "0": [
+     453,
+     453,
+     453
+    ],
+    "1": [
+     379,
+     418,
+     1088
+    ],
+    "14": [
+     1728,
+     1270,
+     57
+    ],
+    "15": [
+     930,
+     930,
+     930
+    ],
+    "2": [
+     38,
+     642,
+     240
+    ],
+    "27": [
+     432,
+     688,
+     234
+    ],
+    "4": [
+     1717,
+     78,
+     31
+    ],
+    "73": [
+     718,
+     1238,
+     1885
+    ]
+   },
+   "light": {
+    "ambient": 0.28040971903660183,
+    "occlusion": 1.2769516888275456,
+    "gamma": 1.7836225625221354,
+    "slope": 0.12867870661499697,
+    "lights": [
+     {
+      "w": 1.0,
+      "elevation": 10.0,
+      "azimuth": 150.0,
+      "shadow": true
+     },
+     {
+      "w": 0.0,
+      "elevation": 35.0,
+      "azimuth": 0.0,
+      "shadow": true
+     },
+     {
+      "w": 0.11391390733304654,
+      "elevation": 0.0,
+      "azimuth": 50.0,
+      "shadow": true
+     }
+    ]
+   },
+   "fitted_on": [
+    "duck",
+    "frog",
+    "snail",
+    "fish"
+   ],
+   "exposures": {
+    "duck": 0.896,
+    "frog": 1.607,
+    "snail": 0.853,
+    "fish": 0.814
+   },
+   "face_error": 15.27,
+   "face_error_without_shadows": 17.48,
+   "world_scale": 7.061111111111111
+  }
+ },
+ "units": {
+  "duck": {
+   "colours": {
+    "14": [
+     153,
+     108,
+     1
+    ],
+    "4": [
+     83,
+     7,
+     3
+    ]
+   },
+   "light": {
+    "ambient": 0.7832207151144451,
+    "occlusion": 1.1362831559976032,
+    "gamma": 1.6396449715037853,
+    "slope": 0.21240433692851074,
+    "lights": [
+     {
+      "w": 1.0,
+      "elevation": 0.0,
+      "azimuth": 125.0,
+      "shadow": true
+     },
+     {
+      "w": 0.477782361863234,
+      "elevation": 35.0,
+      "azimuth": 175.0,
+      "shadow": false
+     },
+     {
+      "w": 0.7404991273950922,
+      "elevation": 0.0,
+      "azimuth": 0.0,
+      "shadow": true
+     }
+    ]
+   },
+   "fitted_on": [
+    "duck"
+   ],
+   "exposures": {
+    "duck": 1.0
+   },
+   "face_error": 5.41,
+   "face_error_without_shadows": 8.13,
+   "world_scale": 0.4778580990629183
+  },
+  "frog": {
+   "colours": {
+    "15": [
+     86,
+     86,
+     86
+    ],
+    "2": [
+     3,
+     63,
+     25
+    ],
+    "27": [
+     46,
+     74,
+     24
+    ]
+   },
+   "light": {
+    "ambient": 1.4446698365011186,
+    "occlusion": 1.9890905968249424,
+    "gamma": 1.1823599013710746,
+    "slope": 0.16545826096341645,
+    "lights": [
+     {
+      "w": 1.0,
+      "elevation": 35.0,
+      "azimuth": -125.0,
+      "shadow": true
+     },
+     {
+      "w": 0.9899399007408,
+      "elevation": 10.0,
+      "azimuth": 50.0,
+      "shadow": true
+     },
+     {
+      "w": 0.23504182872289145,
+      "elevation": 35.0,
+      "azimuth": -150.0,
+      "shadow": true
+     }
+    ]
+   },
+   "fitted_on": [
+    "frog"
+   ],
+   "exposures": {
+    "frog": 1.0
+   },
+   "face_error": 6.96,
+   "face_error_without_shadows": 9.65,
+   "world_scale": 0.393300529472455
+  },
+  "snail": {
+   "colours": {
+    "0": [
+     39,
+     39,
+     39
+    ],
+    "15": [
+     57,
+     57,
+     57
+    ],
+    "4": [
+     135,
+     2,
+     1
+    ]
+   },
+   "light": {
+    "ambient": 0.9625363606131978,
+    "occlusion": 0.9302909448105365,
+    "gamma": 0.5967506801854988,
+    "slope": 0.3076081205944835,
+    "lights": [
+     {
+      "w": 1.0,
+      "elevation": 10.0,
+      "azimuth": 50.0,
+      "shadow": true
+     },
+     {
+      "w": 0.9746293034484681,
+      "elevation": 0.0,
+      "azimuth": 50.0,
+      "shadow": true
+     },
+     {
+      "w": 0.1708188140095642,
+      "elevation": 0.0,
+      "azimuth": -25.0,
+      "shadow": true
+     }
+    ]
+   },
+   "fitted_on": [
+    "snail"
+   ],
+   "exposures": {
+    "snail": 1.0
+   },
+   "face_error": 14.13,
+   "face_error_without_shadows": 21.08,
+   "world_scale": 0.5542168674698795
+  },
+  "fish": {
+   "colours": {
+    "1": [
+     32,
+     35,
+     79
+    ],
+    "14": [
+     174,
+     133,
+     28
+    ],
+    "73": [
+     94,
+     157,
+     244
+    ]
+   },
+   "light": {
+    "ambient": 0.5046701628187392,
+    "occlusion": 1.8814096276243941,
+    "gamma": 1.3885993981418883,
+    "slope": 0.42021848858718147,
+    "lights": [
+     {
+      "w": 1.0,
+      "elevation": 10.0,
+      "azimuth": 25.0,
+      "shadow": true
+     },
+     {
+      "w": 1.9389464019097706,
+      "elevation": 0.0,
+      "azimuth": 125.0,
+      "shadow": false
+     },
+     {
+      "w": 0.7868778049283136,
+      "elevation": 50.0,
+      "azimuth": 150.0,
+      "shadow": true
+     }
+    ]
+   },
+   "fitted_on": [
+    "fish"
+   ],
+   "exposures": {
+    "fish": 1.0
+   },
+   "face_error": 8.3,
+   "face_error_without_shadows": 20.3,
+   "world_scale": 0.7444444444444445
+  },
+  "buggy": {
+   "colours": {
+    "0": [
+     197,
+     197,
+     197
+    ],
+    "14": [
+     0,
+     0,
+     0
+    ],
+    "15": [
+     197,
+     197,
+     197
+    ],
+    "256": [
+     72,
+     72,
+     72
+    ],
+    "4": [
+     206,
+     12,
+     18
+    ],
+    "8": [
+     183,
+     183,
+     183
+    ]
+   },
+   "light": {
+    "ambient": 0.6255864693377272,
+    "occlusion": 1.5951409370985319,
+    "gamma": 0.5183514703831756,
+    "slope": 0.2573558281863733,
+    "lights": [
+     {
+      "w": 1.0,
+      "elevation": 0.0,
+      "azimuth": 100.0,
+      "shadow": true
+     },
+     {
+      "w": 3.3361092332594904,
+      "elevation": 0.0,
+      "azimuth": -125.0,
+      "shadow": false
+     },
+     {
+      "w": 0.22720507052403396,
+      "elevation": 35.0,
+      "azimuth": 175.0,
+      "shadow": true
+     }
+    ]
+   },
+   "fitted_on": [
+    "buggy"
+   ],
+   "exposures": {
+    "buggy": 1.0
+   },
+   "face_error": 9.5,
+   "face_error_without_shadows": 11.17,
+   "world_scale": 0.9477911646586346
+  },
+  "dirtbuggy": {
+   "colours": {
+    "0": [
+     248,
+     248,
+     248
+    ],
+    "14": [
+     432,
+     323,
+     44
+    ],
+    "15": [
+     214,
+     214,
+     214
+    ],
+    "256": [
+     71,
+     71,
+     71
+    ],
+    "7": [
+     344,
+     344,
+     344
+    ],
+    "8": [
+     452,
+     452,
+     452
+    ]
+   },
+   "light": {
+    "ambient": 0.6982982270392728,
+    "occlusion": 1.0065626847867315,
+    "gamma": 1.8977737082440802,
+    "slope": 0.08052420653833939,
+    "lights": [
+     {
+      "w": 1.0,
+      "elevation": 0.0,
+      "azimuth": -125.0,
+      "shadow": true
+     },
+     {
+      "w": 0.0,
+      "elevation": 70.0,
+      "azimuth": -150.0,
+      "shadow": true
+     },
+     {
+      "w": 1.0892156472953505,
+      "elevation": 10.0,
+      "azimuth": 150.0,
+      "shadow": true
+     }
+    ]
+   },
+   "fitted_on": [
+    "dirtbuggy"
+   ],
+   "exposures": {
+    "dirtbuggy": 1.0
+   },
+   "face_error": 12.16,
+   "face_error_without_shadows": 14.88,
+   "world_scale": 1.5293440428380187
+  },
+  "dozer": {
+   "colours": {
+    "0": [
+     69,
+     69,
+     69
+    ],
+    "14": [
+     204,
+     185,
+     26
+    ],
+    "256": [
+     70,
+     70,
+     70
+    ],
+    "8": [
+     101,
+     101,
+     101
+    ]
+   },
+   "light": {
+    "ambient": 0.8299437671180759,
+    "occlusion": 0.26382886530877075,
+    "gamma": 1.5115376198236823,
+    "slope": 0.006465018421790806,
+    "lights": [
+     {
+      "w": 1.0,
+      "elevation": 20.0,
+      "azimuth": -150.0,
+      "shadow": true
+     },
+     {
+      "w": 0.0,
+      "elevation": 50.0,
+      "azimuth": 0.0,
+      "shadow": true
+     },
+     {
+      "w": 0.7809655201322133,
+      "elevation": 0.0,
+      "azimuth": 125.0,
+      "shadow": false
+     }
+    ]
+   },
+   "fitted_on": [
+    "dozer"
+   ],
+   "exposures": {
+    "dozer": 1.0
+   },
+   "face_error": 9.88,
+   "face_error_without_shadows": 10.85,
+   "world_scale": 1.0936412315930388
+  },
+  "dumptruck": {
+   "colours": {
+    "0": [
+     114,
+     114,
+     114
+    ],
+    "14": [
+     105,
+     78,
+     7
+    ],
+    "256": [
+     71,
+     71,
+     71
+    ],
+    "8": [
+     90,
+     90,
+     90
+    ]
+   },
+   "light": {
+    "ambient": 1.0214211710237948,
+    "occlusion": 1.6259443713844195,
+    "gamma": 1.3202550563448234,
+    "slope": 0.1509367626071566,
+    "lights": [
+     {
+      "w": 1.0,
+      "elevation": 35.0,
+      "azimuth": -175.0,
+      "shadow": true
+     },
+     {
+      "w": 1.3520993422049994,
+      "elevation": 10.0,
+      "azimuth": 100.0,
+      "shadow": false
+     },
+     {
+      "w": 0.0,
+      "elevation": 50.0,
+      "azimuth": 150.0,
+      "shadow": true
+     }
+    ]
+   },
+   "fitted_on": [
+    "dumptruck"
+   ],
+   "exposures": {
+    "dumptruck": 1.0
+   },
+   "face_error": 11.63,
+   "face_error_without_shadows": 14.79,
+   "world_scale": 0.8526773761713521
+  },
+  "speedboat": {
+   "colours": {
+    "0": [
+     79,
+     79,
+     79
+    ],
+    "14": [
+     220,
+     166,
+     23
+    ],
+    "15": [
+     147,
+     147,
+     147
+    ],
+    "25": [
+     0,
+     0,
+     0
+    ],
+    "383": [
+     0,
+     0,
+     0
+    ],
+    "71": [
+     0,
+     0,
+     0
+    ]
+   },
+   "light": {
+    "ambient": 0.9508139646525013,
+    "occlusion": 0.9805377799330188,
+    "gamma": 2.2048612067981384,
+    "slope": 0.03926973401388096,
+    "lights": [
+     {
+      "w": 1.0,
+      "elevation": 20.0,
+      "azimuth": 125.0,
+      "shadow": true
+     },
+     {
+      "w": 1.0553448099544476,
+      "elevation": 10.0,
+      "azimuth": 125.0,
+      "shadow": false
+     },
+     {
+      "w": 0.1480752674137899,
+      "elevation": 20.0,
+      "azimuth": -100.0,
+      "shadow": true
+     }
+    ]
+   },
+   "fitted_on": [
+    "speedboat"
+   ],
+   "exposures": {
+    "speedboat": 1.0
+   },
+   "face_error": 7.5,
+   "face_error_without_shadows": 12.71,
+   "world_scale": 0.9088888888888889
+  },
+  "tugboat": {
+   "colours": {
+    "0": [
+     9,
+     9,
+     9
+    ],
+    "1": [
+     29,
+     31,
+     71
+    ],
+    "4": [
+     53,
+     2,
+     3
+    ]
+   },
+   "light": {
+    "ambient": 1.07655236228746,
+    "occlusion": 1.4043154437034664,
+    "gamma": 1.4779286736397002,
+    "slope": 0.1506070859420219,
+    "lights": [
+     {
+      "w": 1.0,
+      "elevation": 20.0,
+      "azimuth": 125.0,
+      "shadow": true
+     },
+     {
+      "w": 0.41344608460963805,
+      "elevation": 35.0,
+      "azimuth": -75.0,
+      "shadow": false
+     },
+     {
+      "w": 0.5968034345524134,
+      "elevation": 20.0,
+      "azimuth": 50.0,
+      "shadow": false
+     }
+    ]
+   },
+   "fitted_on": [
+    "tugboat"
+   ],
+   "exposures": {
+    "tugboat": 1.0
+   },
+   "face_error": 9.3,
+   "face_error_without_shadows": 9.7,
+   "world_scale": 0.23293172690763053
+  },
+  "forklift": {
+   "colours": {
+    "0": [
+     213,
+     213,
+     213
+    ],
+    "15": [
+     245,
+     245,
+     245
+    ],
+    "256": [
+     71,
+     71,
+     71
+    ],
+    "4": [
+     203,
+     61,
+     53
+    ],
+    "7": [
+     156,
+     156,
+     156
+    ],
+    "8": [
+     0,
+     0,
+     0
+    ]
+   },
+   "light": {
+    "ambient": 0.450280333600142,
+    "occlusion": 1.2179044907181247,
+    "gamma": 0.9946139330301366,
+    "slope": 0.16216813204541622,
+    "lights": [
+     {
+      "w": 1.0,
+      "elevation": 20.0,
+      "azimuth": 150.0,
+      "shadow": true
+     },
+     {
+      "w": 0.0,
+      "elevation": 35.0,
+      "azimuth": -25.0,
+      "shadow": true
+     },
+     {
+      "w": 0.38748568808669787,
+      "elevation": 35.0,
+      "azimuth": 75.0,
+      "shadow": false
+     }
+    ]
+   },
+   "fitted_on": [
+    "forklift"
+   ],
+   "exposures": {
+    "forklift": 1.0
+   },
+   "face_error": 14.66,
+   "face_error_without_shadows": 20.05,
+   "world_scale": 1.2781124497991967
+  },
+  "steamshovel": {
+   "colours": {
+    "0": [
+     64,
+     64,
+     64
+    ],
+    "14": [
+     327,
+     262,
+     30
+    ],
+    "15": [
+     150,
+     150,
+     150
+    ],
+    "25": [
+     0,
+     0,
+     0
+    ],
+    "256": [
+     101,
+     101,
+     101
+    ],
+    "7": [
+     76,
+     76,
+     76
+    ],
+    "8": [
+     127,
+     127,
+     127
+    ]
+   },
+   "light": {
+    "ambient": 0.9385510599096457,
+    "occlusion": 1.280319106135898,
+    "gamma": 1.086140913116886,
+    "slope": 0.6056116145664244,
+    "lights": [
+     {
+      "w": 1.0,
+      "elevation": 50.0,
+      "azimuth": -150.0,
+      "shadow": true
+     },
+     {
+      "w": 0.21579375581837798,
+      "elevation": 0.0,
+      "azimuth": -100.0,
+      "shadow": true
+     },
+     {
+      "w": 0.6141316391171986,
+      "elevation": 35.0,
+      "azimuth": -125.0,
+      "shadow": true
+     }
+    ]
+   },
+   "fitted_on": [
+    "steamshovel"
+   ],
+   "exposures": {
+    "steamshovel": 1.0
+   },
+   "face_error": 14.67,
+   "face_error_without_shadows": 17.94,
+   "world_scale": 1.6004283801874164
+  }
+ },
+ "glass": {
+  "transmit": 0.9441904191396582,
+  "desaturate": 0.7944612646641299,
+  "grey": 1.2103790073856653,
+  "shine": 0.450443135984783,
+  "power": 10.0,
+  "fresnel": 2.0
+ }
+}

@@ -1,0 +1,19 @@
+{
+ "unit": "watercrab",
+ "elevation": 22.5,
+ "skew": 0.07,
+ "scale": 593.8594,
+ "radius": 0.14048507263757423,
+ "headings": {
+  "right": 85,
+  "left": 265,
+  "up": 165,
+  "down": 0
+ },
+ "iou": {
+  "right": 0.7899,
+  "left": 0.823,
+  "up": 0.6977,
+  "down": 0.7548
+ }
+}
